@@ -10,6 +10,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,7 +19,7 @@ import in.galaxyofandroid.spinerdialog.SpinnerDialog;
 
 public class MainActivity extends AppCompatActivity {
     static Map<String, Attraction> attractionMap = new HashMap<>();
-    static ArrayList<Attraction> selectedList = new ArrayList<>();
+    static ArrayList<Attraction> selectedAttractions = new ArrayList<>();
 
     static {
         attractionMap.put("Changi City Point",
@@ -32,14 +33,14 @@ public class MainActivity extends AppCompatActivity {
         attractionMap.put("Night Safari",
                 new Attraction("Night Safari", "Lorem Ipsum", R.drawable.octopus));
 
-        selectedList.add(new Attraction("Marina Bay Sands", "Lorem Ipsum", R.drawable.octopus));
-        selectedList.add(new Attraction("Vivo City", "Lorem Ipsum", R.drawable.octopus));
-        selectedList.add(new Attraction("Resorts World Sentosa", "Lorem Ipsum",
+        selectedAttractions.add(new Attraction("Marina Bay Sands", "Lorem Ipsum", R.drawable.octopus));
+        selectedAttractions.add(new Attraction("Vivo City", "Lorem Ipsum", R.drawable.octopus));
+        selectedAttractions.add(new Attraction("Resorts World Sentosa", "Lorem Ipsum",
                 R.drawable.octopus));
-        selectedList.add(new Attraction("Budda Tooth Relic Temple", "Lorem Ipsum",
+        selectedAttractions.add(new Attraction("Budda Tooth Relic Temple", "Lorem Ipsum",
                 R.drawable.octopus));
-        selectedList.add(new Attraction("Singapore Zoo", "Lorem Ipsum", R.drawable.octopus));
-        selectedList.add(new Attraction("Jurong Bird Park", "Lorem Ipsum", R.drawable.octopus));
+        selectedAttractions.add(new Attraction("Singapore Zoo", "Lorem Ipsum", R.drawable.octopus));
+        selectedAttractions.add(new Attraction("Jurong Bird Park", "Lorem Ipsum", R.drawable.octopus));
     }
 
     SpinnerDialog spinnerDialog;
@@ -49,8 +50,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        final CustomListAdapter adapter = new CustomListAdapter(this, selectedList);
+        final CustomListAdapter adapter = new CustomListAdapter(this, selectedAttractions);
         final ArrayList<String> attractionStrList = new ArrayList<>(attractionMap.keySet());
+        Collections.sort(attractionStrList);
+        Collections.sort(selectedAttractions);
 
         listView = findViewById(R.id.list_view);
         listView.setAdapter(adapter);
@@ -60,17 +63,19 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, final int position,
                                     long id) {
                 AlertDialog.Builder adb = new AlertDialog.Builder(MainActivity.this);
-                final Attraction attr = selectedList.get(position);
+                final Attraction attr = selectedAttractions.get(position);
 
                 adb.setTitle("Delete?");
                 adb.setMessage("Are you sure you want to delete " + attr.getName());
                 adb.setNegativeButton("Cancel", null);
                 adb.setPositiveButton("Ok", new AlertDialog.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        selectedList.remove(attr);
+                        selectedAttractions.remove(attr);
                         attractionMap.put(attr.getName(), attr);
                         attractionStrList.add(attr.getName());
+                        Collections.sort(attractionStrList);
                         adapter.notifyDataSetChanged();
+
                         Toast.makeText(MainActivity.this, attr.getName() + " deleted.",
                                 Toast.LENGTH_SHORT).show();
                     }
@@ -87,7 +92,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(String item, int position) {
                 String name = attractionStrList.get(position);
-                selectedList.add(attractionMap.get(name));
+                selectedAttractions.add(attractionMap.get(name));
+                Collections.sort(selectedAttractions);
                 attractionMap.remove(name);
                 attractionStrList.remove(position);
                 adapter.notifyDataSetChanged();

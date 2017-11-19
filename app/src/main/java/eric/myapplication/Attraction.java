@@ -1,7 +1,9 @@
 package eric.myapplication;
 
 
-public class Attraction {
+import android.support.annotation.NonNull;
+
+public class Attraction implements Comparable<Attraction>{
     private String name;
     private String description;
     private Integer image;
@@ -38,9 +40,14 @@ public class Attraction {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj.getClass() != getClass()) return false;
+        if (obj.getClass() != this.getClass()) return false;
 
         Attraction compared = (Attraction) obj;
-        return compared.getName().equals(getName());
+        return compared.getName().equals(this.getName());
+    }
+
+    @Override
+    public int compareTo(@NonNull Attraction compared) {
+        return this.getName().compareTo(compared.getName());
     }
 }
