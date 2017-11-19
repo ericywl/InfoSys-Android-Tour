@@ -25,9 +25,9 @@ public class CustomListAdapter extends ArrayAdapter {
     }
 
     private class ViewHolder {
-        public TextView nameText;
-        public TextView infoText;
-        public ImageView imageView;
+        private TextView nameText;
+        private TextView infoText;
+        private ImageView imageView;
     }
 
     @NonNull
