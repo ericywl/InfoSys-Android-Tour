@@ -10,6 +10,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         final CustomListAdapter adapter = new CustomListAdapter(this, selectedList);
         final ArrayList<String> attractionStrList = new ArrayList<>(attractionMap.keySet());
+        Collections.sort(attractionStrList);
+        Collections.sort(selectedList);
 
         listView = findViewById(R.id.list_view);
         listView.setAdapter(adapter);
@@ -70,7 +73,9 @@ public class MainActivity extends AppCompatActivity {
                         selectedList.remove(attr);
                         attractionMap.put(attr.getName(), attr);
                         attractionStrList.add(attr.getName());
+                        Collections.sort(attractionStrList);
                         adapter.notifyDataSetChanged();
+
                         Toast.makeText(MainActivity.this, attr.getName() + " deleted.",
                                 Toast.LENGTH_SHORT).show();
                     }
@@ -88,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(String item, int position) {
                 String name = attractionStrList.get(position);
                 selectedList.add(attractionMap.get(name));
+                Collections.sort(selectedList);
                 attractionMap.remove(name);
                 attractionStrList.remove(position);
                 adapter.notifyDataSetChanged();
