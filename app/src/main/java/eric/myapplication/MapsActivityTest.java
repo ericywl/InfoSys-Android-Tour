@@ -64,6 +64,7 @@ public class MapsActivityTest extends AppCompatActivity
         }
     }
 
+    // Getting Google Maps Direction
     public void requestDirection() {
         Snackbar.make(btnRequestDirection, "Direction Requesting...", Snackbar.LENGTH_SHORT).show();
         GoogleDirectionConfiguration.getInstance().setLogEnabled(true);
@@ -80,10 +81,12 @@ public class MapsActivityTest extends AppCompatActivity
     public void onDirectionSuccess(Direction direction, String rawBody) {
         Snackbar.make(btnRequestDirection, "Success with status : " + direction.getStatus(),
                 Snackbar.LENGTH_SHORT).show();
-        
+
         if (direction.isOK()) {
             Route route = direction.getRouteList().get(0);
             int legCount = route.getLegList().size();
+
+            // Adding markers and route lines
             for (int index = 0; index < legCount; index++) {
                 Leg leg = route.getLegList().get(index);
                 googleMap.addMarker(new MarkerOptions()
@@ -93,6 +96,7 @@ public class MapsActivityTest extends AppCompatActivity
                     googleMap.addMarker(new MarkerOptions()
                             .position(leg.getEndLocation().getCoordination()));
                 }
+
                 List<Step> stepList = leg.getStepList();
                 ArrayList<PolylineOptions> polylineOptionList = DirectionConverter
                         .createTransitPolyline(this, stepList, 5, Color.RED, 3, Color.BLUE);
@@ -112,6 +116,7 @@ public class MapsActivityTest extends AppCompatActivity
         Snackbar.make(btnRequestDirection, t.getMessage(), Snackbar.LENGTH_SHORT).show();
     }
 
+    // Setting camera to show the whole route
     private void setCameraWithCoordinationBounds(Route route) {
         LatLng southwest = route.getBound().getSouthwestCoordination().getCoordination();
         LatLng northeast = route.getBound().getNortheastCoordination().getCoordination();
