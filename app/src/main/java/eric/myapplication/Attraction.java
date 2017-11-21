@@ -3,7 +3,9 @@ package eric.myapplication;
 
 import android.support.annotation.NonNull;
 
-public class Attraction implements Comparable<Attraction>{
+import java.io.Serializable;
+
+public class Attraction implements Comparable<Attraction>, Serializable {
     private String name;
     private String description;
     private Integer image;
@@ -18,24 +20,12 @@ public class Attraction implements Comparable<Attraction>{
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public Integer getImage() {
         return image;
-    }
-
-    public void setImage(Integer image) {
-        this.image = image;
     }
 
     @Override

@@ -1,11 +1,13 @@
 package eric.myapplication;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -64,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
         listView.setEmptyView(emptyView);
 
-        // click on ListView to remove attraction
+        // Click on ListView item to remove attraction
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, final int position,
@@ -77,10 +79,10 @@ public class MainActivity extends AppCompatActivity {
                 adb.setNegativeButton("Cancel", null);
                 adb.setPositiveButton("Ok", new AlertDialog.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        // remove from selected
+                        // Remove from list of selected attractions
                         selectedAttractions.remove(attr);
 
-                        // add to available attractions
+                        // Add to list of available attractions
                         attractionMap.put(attr.getName(), attr);
                         attractionStrList.add(attr.getName());
                         Collections.sort(attractionStrList);
@@ -102,11 +104,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(String item, int position) {
                 String name = attractionStrList.get(position);
-                // add to selected
+                // Add to list of selected attractions
                 selectedAttractions.add(attractionMap.get(name));
                 Collections.sort(selectedAttractions);
 
-                // remove from available attractions
+                // Remove from list of available attractions
                 attractionMap.remove(name);
                 attractionStrList.remove(position);
 
@@ -115,10 +117,25 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.add).setOnClickListener(new View.OnClickListener() {
+        // Show list of available attractions to choose from
+        Button addAttr = findViewById(R.id.add);
+        addAttr.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 spinnerDialog.showSpinerDialog();
+            }
+        });
+
+        // Proceed to next intent
+        Button done = findViewById(R.id.done);
+        done.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(view.getContext(), MapsActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("SELECTED", selectedAttractions);
+                intent.putExtra("LIST", bundle);
+                startActivity(intent);
             }
         });
     }
