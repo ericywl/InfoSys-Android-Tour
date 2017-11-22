@@ -112,16 +112,19 @@ public class PlanActivity extends AppCompatActivity {
             public void onClick(String item, int position) {
                 // Add to list of selected attractions
                 Attraction attr = getAttraction(AVAILABLE_TABLE_NAME, item);
-                selectedAttractions.add(attr);
-                addToTable(SELECTED_TABLE_NAME, attr.getName());
-                Collections.sort(selectedAttractions);
+                if (attr != null) {
+                    selectedAttractions.add(attr);
+                    addToTable(SELECTED_TABLE_NAME, attr.getName());
+                    Collections.sort(selectedAttractions);
 
-                // Remove from list of available attractions
-                availableAttractionNames.remove(position);
-                removeFromTable(AVAILABLE_TABLE_NAME, item);
+                    // Remove from list of available attractions
+                    availableAttractionNames.remove(position);
+                    removeFromTable(AVAILABLE_TABLE_NAME, item);
 
-                adapter.notifyDataSetChanged();
-                Toast.makeText(PlanActivity.this, item + " added.", Toast.LENGTH_SHORT).show();
+                    adapter.notifyDataSetChanged();
+                    Toast.makeText(PlanActivity.this, item + " added.",
+                            Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
