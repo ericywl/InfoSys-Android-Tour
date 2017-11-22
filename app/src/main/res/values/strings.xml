@@ -1,5 +1,10 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">Temple Tour SG</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_maps_test">Map</string>
+    <string name="empty_list">The attractions list is currently empty.</string>
+    <string name="add_attr">Add Attractions</string>
+    <string name="done">Done</string>
+    <string name="info_btn">INFO</string>
+    <string name="plan_btn">PLAN</string>
 </resources>

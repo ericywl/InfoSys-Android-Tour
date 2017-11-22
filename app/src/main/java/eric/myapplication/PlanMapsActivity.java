@@ -5,11 +5,13 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -18,7 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
+import eric.myapplication.misc.Attraction;
+
+public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCallback {
     private GoogleMap mMap;
     private ArrayList<Attraction> selectedAttractions;
 
@@ -26,7 +30,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @SuppressWarnings("unchecked")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
+        setContentView(R.layout.activity_plan_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapsFragment);
@@ -37,7 +41,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         selectedAttractions = (ArrayList<Attraction>)
                 intent.getBundleExtra("LIST").getSerializable("SELECTED");
     }
-    
+
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -50,31 +54,33 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        float singaporeLevel = 10;
-        float zoomLevel = 15;
+        float zoomLevel = 11;
 
         List<Address> addressList;
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
 
         try {
-            // Default camera to Singapore if list is empty
-            if (selectedAttractions.isEmpty()) {
-                LatLng singaporeLatLng = new LatLng(1.3521, 103.8198);
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(singaporeLatLng));
-                mMap.moveCamera(CameraUpdateFactory.zoomTo(singaporeLevel));
-            }
+            // Default camera to Marina Bay Sands if list is empty
+            LatLng originLatLng = new LatLng(1.2845442, 103.8595898);
+            mMap.addMarker(new MarkerOptions().position(originLatLng).title("Marina Bay Sands"))
+                    .setIcon(BitmapDescriptorFactory
+                            .defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(originLatLng));
 
             // Add markers to all selected attractions
             for (Attraction attr : selectedAttractions) {
                 addressList = geocoder.getFromLocationName(attr.getName(), 1);
                 double latitude = addressList.get(0).getLatitude();
                 double longitude = addressList.get(0).getLongitude();
+                Log.i("eric1", latitude + ", " + longitude);
 
                 LatLng attractionLatLng = new LatLng(latitude, longitude);
-                mMap.addMarker(new MarkerOptions().position(attractionLatLng).title(attr.getName()));
+                mMap.addMarker(new MarkerOptions().position(attractionLatLng).title(attr.getName
+                        ()));
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(attractionLatLng));
-                mMap.moveCamera(CameraUpdateFactory.zoomTo(zoomLevel));
             }
+
+            mMap.moveCamera(CameraUpdateFactory.zoomTo(zoomLevel));
 
         } catch (IOException ex) {
             ex.printStackTrace();

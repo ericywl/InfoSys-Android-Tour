@@ -15,12 +15,13 @@
         android:id="@+id/empty_list"
         android:layout_width="match_parent"
         android:layout_height="0sp"
+        android:layout_marginLeft="10sp"
+        android:layout_marginRight="10sp"
         android:layout_weight="0.8"
         android:gravity="center"
-        android:text="The attractions list is currently empty."
+        android:text="@string/empty_list"
         android:textSize="30sp"
-        android:visibility="gone"
-        android:layout_marginHorizontal="10sp"/>
+        android:visibility="gone" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -29,18 +30,20 @@
         android:orientation="vertical">
 
         <Button
-            android:id="@+id/add"
+            android:id="@+id/add_attr"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
-            android:text="Add Attractions" />
+            android:onClick="addAttrOnClick"
+            android:text="@string/add_attr" />
 
         <Button
-            android:id="@+id/done"
+            android:id="@+id/done_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
-            android:text="Done" />
+            android:onClick="doneOnClick"
+            android:text="@string/done" />
 
     </LinearLayout>
 

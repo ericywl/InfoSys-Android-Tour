@@ -1,4 +1,4 @@
-package eric.myapplication;
+package eric.myapplication.misc;
 
 
 import android.app.Activity;
@@ -11,6 +11,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+
+import eric.myapplication.R;
 
 public class CustomListAdapter extends ArrayAdapter {
     private Activity context;
