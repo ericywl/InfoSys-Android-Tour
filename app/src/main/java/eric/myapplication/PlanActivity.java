@@ -1,6 +1,7 @@
 package eric.myapplication;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -9,6 +10,9 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -17,6 +21,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 
 import eric.myapplication.misc.Attraction;
 import eric.myapplication.misc.CustomListAdapter;
@@ -31,13 +36,13 @@ public class PlanActivity extends AppCompatActivity {
     public final static String LIST_KEY = "LIST";
 
     private SQLiteDatabase attractionDB;
+    private CustomListAdapter adapter;
 
     private ArrayList<String> availableAttractionNames;
     private ArrayList<Attraction> selectedAttractions;
     private SpinnerDialog spinnerDialog;
 
     @Override
-    @SuppressWarnings("unchecked")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_plan);
@@ -47,7 +52,7 @@ public class PlanActivity extends AppCompatActivity {
         selectedAttractions = getAttractionList(SELECTED_TABLE_NAME);
         availableAttractionNames = getAttractionNameList(AVAILABLE_TABLE_NAME);
 
-        final CustomListAdapter adapter = new CustomListAdapter(this, selectedAttractions);
+        adapter = new CustomListAdapter(this, selectedAttractions);
         ListView attrListView = findViewById(R.id.list_view);
         TextView emptyView = findViewById(R.id.empty_list);
 
@@ -67,17 +72,22 @@ public class PlanActivity extends AppCompatActivity {
                 adb.setNegativeButton("Cancel", null);
                 adb.setPositiveButton("Ok", new AlertDialog.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
+                        attractionDB.beginTransaction();
+                        String attrName = attr.getName();
+
                         // Remove from list of selected attractions
                         selectedAttractions.remove(attr);
-                        removeFromTable(SELECTED_TABLE_NAME, attr.getName());
+                        removeFromTable(SELECTED_TABLE_NAME, attrName);
 
                         // Add to list of available attractions
-                        availableAttractionNames.add(attr.getName());
-                        addToTable(AVAILABLE_TABLE_NAME, attr.getName());
-                        Collections.sort(availableAttractionNames);
+                        availableAttractionNames.add(attrName);
+                        addToTable(AVAILABLE_TABLE_NAME, attrName);
 
+                        Collections.sort(availableAttractionNames);
+                        attractionDB.endTransaction();
                         adapter.notifyDataSetChanged();
-                        Toast.makeText(PlanActivity.this, attr.getName() + " deleted.",
+
+                        Toast.makeText(PlanActivity.this, attrName + " removed.",
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -86,7 +96,7 @@ public class PlanActivity extends AppCompatActivity {
             }
         });
 
-        spinnerInit(adapter);
+        spinnerInit();
     }
 
     // Show list of available attractions to choose from
@@ -103,32 +113,85 @@ public class PlanActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void spinnerInit(final CustomListAdapter adapter) {
+    @Override
+    // Inflate menu on top-right
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.plan_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        switch (id) {
+            // Remove all attractions from selected list
+            case R.id.remove_all:
+                attractionDB.beginTransaction();
+                for (Iterator<Attraction> iter = selectedAttractions.iterator(); iter.hasNext(); ) {
+                    Attraction attr = iter.next();
+                    String attrName = attr.getName();
+
+                    // Add to list of available attractions
+                    availableAttractionNames.add(attrName);
+                    addToTable(AVAILABLE_TABLE_NAME, attrName);
+
+                    // Remove from list of selected attractions
+                    iter.remove();
+                    removeFromTable(SELECTED_TABLE_NAME, attrName);
+                }
+
+                Collections.sort(availableAttractionNames);
+                attractionDB.endTransaction();
+                adapter.notifyDataSetChanged();
+
+                Toast.makeText(this, "All selected attractions removed.", Toast.LENGTH_SHORT).show();
+                return true;
+
+            case R.id.settings:
+                Toast.makeText(this, "Not implemented.", Toast.LENGTH_SHORT).show();
+                return true;
+        }
+
+        return true;
+    }
+
+    // Initialize the Spinner popup and set click listener
+    private void spinnerInit() {
         spinnerDialog = new SpinnerDialog(PlanActivity.this, availableAttractionNames,
                 "Select or Search Attractions", R.style.DialogAnimations_SmileWindow);
 
         spinnerDialog.bindOnSpinerListener(new OnSpinerItemClick() {
             @Override
             public void onClick(String item, int position) {
-                // Add to list of selected attractions
                 Attraction attr = getAttraction(AVAILABLE_TABLE_NAME, item);
-                if (attr != null) {
-                    selectedAttractions.add(attr);
-                    addToTable(SELECTED_TABLE_NAME, attr.getName());
-                    Collections.sort(selectedAttractions);
-
-                    // Remove from list of available attractions
-                    availableAttractionNames.remove(position);
-                    removeFromTable(AVAILABLE_TABLE_NAME, item);
-
-                    adapter.notifyDataSetChanged();
-                    Toast.makeText(PlanActivity.this, item + " added.",
-                            Toast.LENGTH_SHORT).show();
+                if (attr == null) {
+                    Toast.makeText(PlanActivity.this, "WHY IS IT HERE?", Toast.LENGTH_SHORT).show();
+                    return;
                 }
+
+                attractionDB.beginTransaction();
+
+                // Add to list of selected attractions
+                selectedAttractions.add(attr);
+                addToTable(SELECTED_TABLE_NAME, attr.getName());
+                Collections.sort(selectedAttractions);
+
+                // Remove from list of available attractions
+                availableAttractionNames.remove(position);
+                removeFromTable(AVAILABLE_TABLE_NAME, item);
+
+                attractionDB.endTransaction();
+                adapter.notifyDataSetChanged();
+
+                Toast.makeText(PlanActivity.this, item + " added.", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    // Add attraction with the respective name to the database table
+    // In actual, only reset the COL_REMOVED field to 0
     private void addToTable(String tableName, String attrName) {
         ContentValues values = new ContentValues();
         values.put(COL_REMOVED, 0);
@@ -138,6 +201,8 @@ public class PlanActivity extends AppCompatActivity {
         attractionDB.update(tableName, values, whereClause, whereArgs);
     }
 
+    // Remove attraction with the respective name from the database table
+    // In actual, only set the COL_REMOVED field to 1
     private void removeFromTable(String tableName, String attrName) {
         ContentValues values = new ContentValues();
         values.put(COL_REMOVED, 1);
@@ -146,8 +211,8 @@ public class PlanActivity extends AppCompatActivity {
         attractionDB.update(tableName, values, whereClause, whereArgs);
     }
 
+    // Get the attraction with the corresponding name
     private Attraction getAttraction(String tableName, String attrName) {
-        Log.i("eric1", "start getAttraction");
         String selection = COL_REMOVED + "=? AND " + COL_NAME + "=?";
         String[] selectionArgs = {"0", attrName};
         Cursor cursor = attractionDB.query(tableName,
@@ -168,9 +233,11 @@ public class PlanActivity extends AppCompatActivity {
             }
         }
 
+        // Should not get here
         return null;
     }
 
+    // Get a list of attractions for the ListView
     private ArrayList<Attraction> getAttractionList(String tableName) {
         ArrayList<Attraction> output = new ArrayList<>();
         String selection = COL_REMOVED + "=?";
@@ -195,6 +262,7 @@ public class PlanActivity extends AppCompatActivity {
         return output;
     }
 
+    // Get a list of attraction names for the Spinner
     private ArrayList<String> getAttractionNameList(String tableName) {
         ArrayList<String> output = new ArrayList<>();
         String selection = COL_REMOVED + "=?";

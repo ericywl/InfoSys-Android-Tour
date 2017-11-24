@@ -7,4 +7,6 @@
     <string name="done">Done</string>
     <string name="info_btn">INFO</string>
     <string name="plan_btn">PLAN</string>
+    <string name="remove_all">Remove All</string>
+    <string name="settings">Settings</string>
 </resources>

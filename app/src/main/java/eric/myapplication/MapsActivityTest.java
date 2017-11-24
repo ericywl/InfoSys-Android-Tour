@@ -15,6 +15,7 @@ import com.akexorcist.googledirection.model.Direction;
 import com.akexorcist.googledirection.model.Leg;
 import com.akexorcist.googledirection.model.Route;
 import com.akexorcist.googledirection.model.Step;
+import com.akexorcist.googledirection.request.DirectionDestinationRequest;
 import com.akexorcist.googledirection.util.DirectionConverter;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -37,6 +38,8 @@ public class MapsActivityTest extends AppCompatActivity
     private LatLng shopping = new LatLng(41.8766061, -87.6556908);
     private LatLng dinner = new LatLng(41.8909056, -87.6467561);
     private LatLng gallery = new LatLng(41.9007082, -87.6488802);
+
+    private List<LatLng> waypoints = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,13 +69,21 @@ public class MapsActivityTest extends AppCompatActivity
 
     // Getting Google Maps Direction
     public void requestDirection() {
+        waypoints.add(shopping);
+        waypoints.add(dinner);
+        waypoints.add(gallery);
+
         Snackbar.make(btnRequestDirection, "Direction Requesting...", Snackbar.LENGTH_SHORT).show();
         GoogleDirectionConfiguration.getInstance().setLogEnabled(true);
-        GoogleDirection.withServerKey(serverKey)
-                .from(park)
-                .and(shopping)
-                .and(dinner)
-                .to(gallery)
+        DirectionDestinationRequest destinationRequest =
+                GoogleDirection.withServerKey(serverKey)
+                        .from(park);
+
+        for (int i = 0; i < waypoints.size(); i++) {
+            destinationRequest.and(waypoints.get(i));
+        }
+
+        destinationRequest.to(park)
                 .transportMode(TransportMode.DRIVING)
                 .execute(this);
     }
