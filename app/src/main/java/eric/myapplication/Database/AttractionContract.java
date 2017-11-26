@@ -1,4 +1,4 @@
-package eric.myapplication.misc;
+package eric.myapplication.Database;
 
 
 import android.provider.BaseColumns;

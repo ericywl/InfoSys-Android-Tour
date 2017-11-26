@@ -1,11 +1,12 @@
-package eric.myapplication;
+package eric.myapplication.Activity;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
+
+import eric.myapplication.R;
 
 public class LandingActivity extends AppCompatActivity {
     @Override

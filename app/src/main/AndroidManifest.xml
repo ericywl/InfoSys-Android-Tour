@@ -16,7 +16,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".LandingActivity">
+        <activity android:name=".Activity.LandingActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,17 +25,17 @@
         </activity>
 
         <activity
-            android:name=".PlanActivity"
+            android:name=".Activity.PlanActivity"
             android:launchMode="singleTop"
-            android:parentActivityName=".LandingActivity" />
+            android:parentActivityName=".Activity.LandingActivity" />
 
         <activity
-            android:name=".PlanMapsActivity"
+            android:name=".Activity.PlanMapsActivity"
             android:label="@string/title_activity_maps"
-            android:parentActivityName=".PlanActivity" />
+            android:parentActivityName=".Activity.PlanActivity" />
 
         <activity
-            android:name=".MapsActivityTest"
+            android:name=".Activity.MapsActivityTest"
             android:label="@string/title_activity_maps_test">
 
         </activity>

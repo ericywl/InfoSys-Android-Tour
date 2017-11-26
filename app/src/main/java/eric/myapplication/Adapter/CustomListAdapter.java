@@ -1,4 +1,4 @@
-package eric.myapplication.misc;
+package eric.myapplication.Adapter;
 
 
 import android.app.Activity;
@@ -13,6 +13,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import eric.myapplication.R;
+import eric.myapplication.Misc.Attraction;
 
 public class CustomListAdapter extends ArrayAdapter {
     private Activity context;

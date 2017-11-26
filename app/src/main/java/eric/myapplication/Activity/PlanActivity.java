@@ -1,7 +1,6 @@
-package eric.myapplication;
+package eric.myapplication.Activity;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -9,7 +8,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -23,13 +21,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
-import eric.myapplication.misc.Attraction;
-import eric.myapplication.misc.CustomListAdapter;
-import eric.myapplication.misc.AttractionDBHelper;
+import eric.myapplication.R;
+import eric.myapplication.Misc.Attraction;
+import eric.myapplication.Adapter.CustomListAdapter;
+import eric.myapplication.Database.AttractionDBHelper;
 import in.galaxyofandroid.spinerdialog.OnSpinerItemClick;
 import in.galaxyofandroid.spinerdialog.SpinnerDialog;
 
-import static eric.myapplication.misc.AttractionContract.AttractionEntry.*;
+import static eric.myapplication.Database.AttractionContract.AttractionEntry.*;
 
 public class PlanActivity extends AppCompatActivity {
     public final static String SELECTED_KEY = "SELECTED";
@@ -149,6 +148,7 @@ public class PlanActivity extends AppCompatActivity {
                 Toast.makeText(this, "All selected attractions removed.", Toast.LENGTH_SHORT).show();
                 return true;
 
+            // Not yet implemented
             case R.id.settings:
                 Toast.makeText(this, "Not implemented.", Toast.LENGTH_SHORT).show();
                 return true;

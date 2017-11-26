@@ -1,4 +1,4 @@
-package eric.myapplication;
+package eric.myapplication.Activity;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -34,7 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import eric.myapplication.misc.Attraction;
+import eric.myapplication.R;
+import eric.myapplication.Misc.Attraction;
 
 public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCallback, DirectionCallback {
     private GoogleMap mMap;
@@ -102,7 +103,6 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
 
     @Override
     public void onDirectionSuccess(Direction direction, String rawBody) {
-
         // Add marker to Marina Bay Sands first
         mMap.addMarker(new MarkerOptions().position(originLatLng).title("Marina Bay Sands"))
                 .setIcon(BitmapDescriptorFactory

@@ -1,4 +1,4 @@
-package eric.myapplication;
+package eric.myapplication.Activity;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -28,6 +28,8 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import eric.myapplication.R;
 
 public class MapsActivityTest extends AppCompatActivity
         implements OnMapReadyCallback, View.OnClickListener, DirectionCallback {
