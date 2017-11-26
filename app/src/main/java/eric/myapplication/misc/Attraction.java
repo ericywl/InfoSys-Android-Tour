@@ -1,4 +1,4 @@
-package eric.myapplication.misc;
+package eric.myapplication.Misc;
 
 
 import android.support.annotation.NonNull;

@@ -34,12 +34,6 @@
             android:label="@string/title_activity_maps"
             android:parentActivityName=".Activity.PlanActivity" />
 
-        <activity
-            android:name=".Activity.MapsActivityTest"
-            android:label="@string/title_activity_maps_test">
-
-        </activity>
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />

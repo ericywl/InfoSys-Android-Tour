@@ -190,6 +190,8 @@ public class PlanActivity extends AppCompatActivity {
         });
     }
 
+    /* SQLITE DATABASE RELATED METHODS*/
+
     // Add attraction with the respective name to the database table
     // In actual, only reset the COL_REMOVED field to 0
     private void addToTable(String tableName, String attrName) {
