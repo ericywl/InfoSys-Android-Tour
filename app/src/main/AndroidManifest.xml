@@ -26,7 +26,6 @@
 
         <activity
             android:name=".Activity.PlanActivity"
-            android:launchMode="singleTop"
             android:parentActivityName=".Activity.LandingActivity" />
 
         <activity

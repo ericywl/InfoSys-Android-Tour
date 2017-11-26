@@ -10,6 +10,5 @@ public class AttractionContract {
         public static final String COL_NAME = "Name";
         public static final String COL_INFO = "Description";
         public static final String COL_IMAGE = "Image";
-        public static final String COL_REMOVED = "Removed";
     }
 }

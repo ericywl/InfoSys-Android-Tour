@@ -5,9 +5,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -21,10 +23,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
+import eric.myapplication.Database.AttractionDBHelper;
 import eric.myapplication.R;
 import eric.myapplication.Misc.Attraction;
 import eric.myapplication.Adapter.CustomListAdapter;
-import eric.myapplication.Database.AttractionDBHelper;
 import in.galaxyofandroid.spinerdialog.OnSpinerItemClick;
 import in.galaxyofandroid.spinerdialog.SpinnerDialog;
 
@@ -80,9 +82,10 @@ public class PlanActivity extends AppCompatActivity {
 
                         // Add to list of available attractions
                         availableAttractionNames.add(attrName);
-                        addToTable(AVAILABLE_TABLE_NAME, attrName);
+                        addToTable(AVAILABLE_TABLE_NAME, attr);
 
                         Collections.sort(availableAttractionNames);
+                        attractionDB.setTransactionSuccessful();
                         attractionDB.endTransaction();
                         adapter.notifyDataSetChanged();
 
@@ -134,7 +137,7 @@ public class PlanActivity extends AppCompatActivity {
 
                     // Add to list of available attractions
                     availableAttractionNames.add(attrName);
-                    addToTable(AVAILABLE_TABLE_NAME, attrName);
+                    addToTable(AVAILABLE_TABLE_NAME, attr);
 
                     // Remove from list of selected attractions
                     iter.remove();
@@ -142,6 +145,7 @@ public class PlanActivity extends AppCompatActivity {
                 }
 
                 Collections.sort(availableAttractionNames);
+                attractionDB.setTransactionSuccessful();
                 attractionDB.endTransaction();
                 adapter.notifyDataSetChanged();
 
@@ -151,6 +155,10 @@ public class PlanActivity extends AppCompatActivity {
             // Not yet implemented
             case R.id.settings:
                 Toast.makeText(this, "Not implemented.", Toast.LENGTH_SHORT).show();
+                return true;
+
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
                 return true;
         }
 
@@ -175,13 +183,14 @@ public class PlanActivity extends AppCompatActivity {
 
                 // Add to list of selected attractions
                 selectedAttractions.add(attr);
-                addToTable(SELECTED_TABLE_NAME, attr.getName());
+                addToTable(SELECTED_TABLE_NAME, attr);
                 Collections.sort(selectedAttractions);
 
                 // Remove from list of available attractions
                 availableAttractionNames.remove(position);
                 removeFromTable(AVAILABLE_TABLE_NAME, item);
 
+                attractionDB.setTransactionSuccessful();
                 attractionDB.endTransaction();
                 adapter.notifyDataSetChanged();
 
@@ -193,30 +202,27 @@ public class PlanActivity extends AppCompatActivity {
     /* SQLITE DATABASE RELATED METHODS*/
 
     // Add attraction with the respective name to the database table
-    // In actual, only reset the COL_REMOVED field to 0
-    private void addToTable(String tableName, String attrName) {
+    private void addToTable(String tableName, Attraction attr) {
         ContentValues values = new ContentValues();
-        values.put(COL_REMOVED, 0);
+        values.put(COL_NAME, attr.getName());
+        values.put(COL_INFO, attr.getDescription());
+        values.put(COL_IMAGE, attr.getImage());
 
-        String whereClause = COL_NAME + "=?";
-        String[] whereArgs = {attrName};
-        attractionDB.update(tableName, values, whereClause, whereArgs);
+        long id = attractionDB.insert(tableName, null, values);
+        Log.i("eric1", "" + id);
     }
 
     // Remove attraction with the respective name from the database table
-    // In actual, only set the COL_REMOVED field to 1
     private void removeFromTable(String tableName, String attrName) {
-        ContentValues values = new ContentValues();
-        values.put(COL_REMOVED, 1);
         String whereClause = COL_NAME + "=?";
         String[] whereArgs = {attrName};
-        attractionDB.update(tableName, values, whereClause, whereArgs);
+        attractionDB.delete(tableName, whereClause, whereArgs);
     }
 
     // Get the attraction with the corresponding name
     private Attraction getAttraction(String tableName, String attrName) {
-        String selection = COL_REMOVED + "=? AND " + COL_NAME + "=?";
-        String[] selectionArgs = {"0", attrName};
+        String selection = COL_NAME + "=?";
+        String[] selectionArgs = {attrName};
         Cursor cursor = attractionDB.query(tableName,
                 null, selection, selectionArgs, null, null, COL_NAME);
 
@@ -242,10 +248,8 @@ public class PlanActivity extends AppCompatActivity {
     // Get a list of attractions for the ListView
     private ArrayList<Attraction> getAttractionList(String tableName) {
         ArrayList<Attraction> output = new ArrayList<>();
-        String selection = COL_REMOVED + "=?";
-        String[] selectionArgs = {"0"};
         Cursor cursor = attractionDB.query(tableName,
-                null, selection, selectionArgs, null, null, COL_NAME);
+                null, null, null, null, null, COL_NAME);
 
         int nameIndex = cursor.getColumnIndex(COL_NAME);
         int infoIndex = cursor.getColumnIndex(COL_INFO);
@@ -267,10 +271,8 @@ public class PlanActivity extends AppCompatActivity {
     // Get a list of attraction names for the Spinner
     private ArrayList<String> getAttractionNameList(String tableName) {
         ArrayList<String> output = new ArrayList<>();
-        String selection = COL_REMOVED + "=?";
-        String[] selectionArgs = {"0"};
         Cursor cursor = attractionDB.query(tableName,
-                null, selection, selectionArgs, null, null, COL_NAME);
+                null, null, null, null, null, COL_NAME);
 
         int nameIndex = cursor.getColumnIndex(COL_NAME);
         while (cursor.moveToNext()) {

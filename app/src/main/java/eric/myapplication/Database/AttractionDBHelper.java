@@ -9,18 +9,26 @@ import android.util.Log;
 
 import eric.myapplication.R;
 
+import static eric.myapplication.Database.AttractionContract.AttractionEntry.*;
+
 public class AttractionDBHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "AttractionDB";
     private static final int DATABASE_VER = 1;
     private static final Object[][] attractionArray = {
-            {"Changi City Point", "Lorem Ipsum", R.drawable.octopus},
-            {"ION Orchard", "Lorem Ipsum", R.drawable.octopus},
-            {"Singapore University of Technology and Design", "Lorem Ipsum", R.drawable.octopus},
-            {"Singapore Flyer", "Lorem Ipsum", R.drawable.octopus},
-            {"Night Safari", "Lorem Ipsum", R.drawable.octopus},
-            {"Resorts World Sentosa", "Lorem Ipsum", R.drawable.octopus},
-            {"Singapore Zoo", "Lorem Ipsum", R.drawable.octopus},
-            {"Buddha Tooth Relic Temple", "Lorem Ipsum", R.drawable.octopus}
+            {"Buddha Tooth Relic Temple", "Lorem Ipsum",
+                    R.mipmap.buddha_tooth_relic_temple},
+            {"Kwan Im Thong Hood Cho Temple", "Lorem Ipsum",
+                    R.mipmap.kwan_im_thong_hood_cho_temple},
+            {"Siong Lim Temple", "Lorem Ipsum", R.mipmap.siong_lim_temple},
+            {"Thian Hock Keng Temple", "Lorem Ipsum", R.drawable.octopus},
+            {"Kong Meng San Phor Kark See Monastery", "Lorem Ipsum",
+                    R.mipmap.kong_meng_san_phor_kark_see_temple},
+            {"Burmese Buddhist Temple", "Lorem Ipsum", R.drawable.octopus},
+            {"Sakyamuni Buddha Gaya Temple", "Lorem Ipsum", R.drawable.octopus},
+            {"Foo Hai Ch'an Monastery", "Lorem Ipsum", R.drawable.octopus},
+            {"Leong San See Temple", "Lorem Ipsum", R.drawable.octopus},
+            {"Wat Ananda Metyarama Thai Buddhist Temple", "Lorem Ipsum",
+                    R.mipmap.wat_ananda_metyarama_thai_buddhist_temple}
     };
 
     public AttractionDBHelper(Context context) {
@@ -30,40 +38,35 @@ public class AttractionDBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         Log.i("eric1", "Created");
-        final String SQL_CREATE_SELECTED_TABLE = createTable(AttractionContract.AttractionEntry.SELECTED_TABLE_NAME);
-        final String SQL_CREATE_AVAILABLE_TABLE = createTable(AttractionContract.AttractionEntry.AVAILABLE_TABLE_NAME);
+        final String SQL_CREATE_SELECTED_TABLE = createTable(SELECTED_TABLE_NAME);
+        final String SQL_CREATE_AVAILABLE_TABLE = createTable(AVAILABLE_TABLE_NAME);
 
         sqLiteDatabase.execSQL(SQL_CREATE_SELECTED_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_AVAILABLE_TABLE);
 
-        initTable(sqLiteDatabase, AttractionContract.AttractionEntry.AVAILABLE_TABLE_NAME);
-        initTable(sqLiteDatabase, AttractionContract.AttractionEntry.SELECTED_TABLE_NAME);
+        initTable(sqLiteDatabase, AVAILABLE_TABLE_NAME);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVer, int newVer) {
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + AttractionContract.AttractionEntry.SELECTED_TABLE_NAME);
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + AttractionContract.AttractionEntry.AVAILABLE_TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + SELECTED_TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + AVAILABLE_TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
 
     private String createTable(String tableName) {
         return "CREATE TABLE " + tableName + "("
-                + AttractionContract.AttractionEntry.COL_NAME + " TEXT PRIMARY KEY, "
-                + AttractionContract.AttractionEntry.COL_INFO + " TEXT NOT NULL, "
-                + AttractionContract.AttractionEntry.COL_IMAGE + " INTEGER, "
-                + AttractionContract.AttractionEntry.COL_REMOVED + " INTEGER)";
+                + COL_NAME + " TEXT PRIMARY KEY, "
+                + COL_INFO + " TEXT NOT NULL, "
+                + COL_IMAGE + " INTEGER)";
     }
 
     private void initTable(SQLiteDatabase sqLiteDatabase, String tableName) {
         for (Object[] attr : attractionArray) {
             ContentValues values = new ContentValues();
-            values.put(AttractionContract.AttractionEntry.COL_NAME, (String) attr[0]);
-            values.put(AttractionContract.AttractionEntry.COL_INFO, (String) attr[1]);
-            values.put(AttractionContract.AttractionEntry.COL_IMAGE, (int) attr[2]);
-
-            if (tableName.equals(AttractionContract.AttractionEntry.AVAILABLE_TABLE_NAME)) values.put(AttractionContract.AttractionEntry.COL_REMOVED, 0);
-            else values.put(AttractionContract.AttractionEntry.COL_REMOVED, 1);
+            values.put(COL_NAME, (String) attr[0]);
+            values.put(COL_INFO, (String) attr[1]);
+            values.put(COL_IMAGE, (int) attr[2]);
 
             sqLiteDatabase.insert(tableName, null, values);
         }
