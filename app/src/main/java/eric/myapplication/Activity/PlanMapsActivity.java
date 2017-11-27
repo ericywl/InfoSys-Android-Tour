@@ -122,15 +122,15 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
                 .setIcon(BitmapDescriptorFactory
                         .defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
 
-        Log.i("eric1", "DirectionOK");
-        // Add markers to all selected attractions
-        for (int i = 0; i < waypoints.size(); i++) {
-            LatLng attractionLatLng = waypoints.get(i);
-            Attraction attr = selectedAttractions.get(i);
-            mMap.addMarker(new MarkerOptions().position(attractionLatLng).title(attr.getName()));
-        }
-
         if (direction.isOK()) {
+            Log.i("eric1", "DirectionOK");
+            // Add markers to all selected attractions
+            for (int i = 0; i < waypoints.size(); i++) {
+                LatLng attractionLatLng = waypoints.get(i);
+                Attraction attr = selectedAttractions.get(i);
+                mMap.addMarker(new MarkerOptions().position(attractionLatLng).title(attr.getName()));
+            }
+            
             Route route = direction.getRouteList().get(0);
             int legCount = route.getLegList().size();
 
@@ -158,6 +158,9 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
                 setCameraWithCoordinationBounds(route);
             }
         } else {
+            Snackbar.make(findViewById(android.R.id.content),
+                    "Unable to find route connecting all waypoints.", Snackbar.LENGTH_INDEFINITE)
+                    .show();
             Log.i("eric1", direction.getStatus());
         }
     }
