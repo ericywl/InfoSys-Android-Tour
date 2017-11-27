@@ -27,13 +27,13 @@ public class AttractionDBHelper extends SQLiteOpenHelper {
                     R.mipmap.kong_meng_san_phor_kark_see_temple},
             {"Burmese Buddhist Temple", "Lorem Ipsum",
                     R.mipmap.burmese_buddhist_temple},
-            {"Sakyamuni Buddha Gaya Temple", "Lorem Ipsum",
+            {"Sakya Muni Buddha Gaya Temple", "Lorem Ipsum",
                     R.mipmap.sakya_muni_buddha_gaya_temple},
             {"Foo Hai Ch'an Monastery", "Lorem Ipsum",
                     R.mipmap.foo_hai_chan_monastery},
-            {"Leong San See Temple", "Lorem Ipsum",
+            {"Leong San Temple", "Lorem Ipsum",
                     R.mipmap.leong_san_see_temple},
-            {"Wat Ananda Metyarama Thai Buddhist Temple", "Lorem Ipsum",
+            {"Wat Ananda Metyarama", "Lorem Ipsum",
                     R.mipmap.wat_ananda_metyarama_thai_buddhist_temple}
     };
 

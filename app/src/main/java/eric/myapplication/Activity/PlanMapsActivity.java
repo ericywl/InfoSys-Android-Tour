@@ -7,6 +7,7 @@ import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -79,7 +80,8 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
 
         try {
             for (Attraction attr : selectedAttractions) {
-                addressList = geocoder.getFromLocationName(attr.getName(), 1);
+                addressList = geocoder.getFromLocationName(attr.getName()
+                        + " Singapore", 1);
                 double latitude = addressList.get(0).getLatitude();
                 double longitude = addressList.get(0).getLongitude();
 
@@ -114,19 +116,21 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
 
     @Override
     public void onDirectionSuccess(Direction direction, String rawBody) {
+        Log.i("eric1", "DirectionSuccess");
         // Add azure marker to Marina Bay Sands first
         mMap.addMarker(new MarkerOptions().position(originLatLng).title("Marina Bay Sands"))
                 .setIcon(BitmapDescriptorFactory
                         .defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
 
-        if (direction.isOK()) {
-            // Add markers to all selected attractions
-            for (int i = 0; i < waypoints.size(); i++) {
-                LatLng attractionLatLng = waypoints.get(i);
-                Attraction attr = selectedAttractions.get(i);
-                mMap.addMarker(new MarkerOptions().position(attractionLatLng).title(attr.getName()));
-            }
+        Log.i("eric1", "DirectionOK");
+        // Add markers to all selected attractions
+        for (int i = 0; i < waypoints.size(); i++) {
+            LatLng attractionLatLng = waypoints.get(i);
+            Attraction attr = selectedAttractions.get(i);
+            mMap.addMarker(new MarkerOptions().position(attractionLatLng).title(attr.getName()));
+        }
 
+        if (direction.isOK()) {
             Route route = direction.getRouteList().get(0);
             int legCount = route.getLegList().size();
 
@@ -153,11 +157,14 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
             } else {
                 setCameraWithCoordinationBounds(route);
             }
+        } else {
+            Log.i("eric1", direction.getStatus());
         }
     }
 
     @Override
     public void onDirectionFailure(Throwable t) {
+        Log.i("eric1", "DirectionFailure");
         Snackbar.make(findViewById(android.R.id.content), t.getMessage(),
                 Snackbar.LENGTH_SHORT).show();
     }
