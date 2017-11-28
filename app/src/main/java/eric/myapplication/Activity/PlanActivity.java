@@ -105,6 +105,30 @@ public class PlanActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         switch (id) {
+            case R.id.add_all:
+                attractionDB.beginTransaction();
+
+                for (Iterator<String> iter = availableAttractionNames.iterator(); iter.hasNext(); ) {
+                    String attrName = iter.next();
+
+                    // Add to list of selected attractions
+                    Attraction attr = getAttraction(AVAILABLE_TABLE_NAME, attrName);
+                    selectedAttractions.add(attr);
+                    addToTable(SELECTED_TABLE_NAME, attr);
+
+                    // Remove from list of selected attractions
+                    iter.remove();
+                    removeFromTable(AVAILABLE_TABLE_NAME, attrName);
+                }
+
+                attractionDB.setTransactionSuccessful();
+                attractionDB.endTransaction();
+                adapter.notifyDataSetChanged();
+
+                Toast.makeText(this, "All available attractions added.",
+                        Toast.LENGTH_SHORT).show();
+                return true;
+
             // Remove all attractions from selected list
             case R.id.remove_all:
                 attractionDB.beginTransaction();
@@ -126,7 +150,8 @@ public class PlanActivity extends AppCompatActivity {
                 attractionDB.endTransaction();
                 adapter.notifyDataSetChanged();
 
-                Toast.makeText(this, "All selected attractions removed.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "All selected attractions removed.",
+                        Toast.LENGTH_SHORT).show();
                 return true;
 
             // Not yet implemented
@@ -187,8 +212,7 @@ public class PlanActivity extends AppCompatActivity {
         values.put(COL_INFO, attr.getDescription());
         values.put(COL_LARGE_IMAGE, attr.getLargeImage());
 
-        long id = attractionDB.insert(tableName, null, values);
-        Log.i("eric1", "" + id);
+        attractionDB.insert(tableName, null, values);
     }
 
     // Remove attraction with the respective name from the database table

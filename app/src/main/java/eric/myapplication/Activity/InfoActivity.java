@@ -25,8 +25,7 @@ public class InfoActivity extends AppCompatActivity {
         String attrInfo = intent.getStringExtra("INFO");
         int attrLargeImage = intent.getIntExtra("IMAGE", 0);
 
-        if (getActionBar() != null )
-            getActionBar().setTitle(attrName);
+        getSupportActionBar().setTitle(attrName);
 
         ImageView imageView = findViewById(R.id.large_image_placeholder);
         imageView.setImageResource(attrLargeImage);
