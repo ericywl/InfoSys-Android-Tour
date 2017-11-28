@@ -15,6 +15,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,8 +40,8 @@ public class PlanActivity extends AppCompatActivity {
     private SQLiteDatabase attractionDB;
     private CustomListAdapter adapter;
 
-    private ArrayList<String> availableAttractionNames;
-    private ArrayList<Attraction> selectedAttractions;
+    public static ArrayList<String> availableAttractionNames;
+    public static ArrayList<Attraction> selectedAttractions;
     private SpinnerDialog spinnerDialog;
 
     @Override
@@ -54,7 +55,7 @@ public class PlanActivity extends AppCompatActivity {
         availableAttractionNames = getAttractionNameList(AVAILABLE_TABLE_NAME);
 
         adapter = new CustomListAdapter(this, selectedAttractions);
-        ListView attrListView = findViewById(R.id.list_view);
+        final ListView attrListView = findViewById(R.id.list_view);
         TextView emptyView = findViewById(R.id.empty_list);
 
         attrListView.setAdapter(adapter);
