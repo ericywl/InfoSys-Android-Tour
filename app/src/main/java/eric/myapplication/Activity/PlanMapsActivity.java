@@ -130,7 +130,7 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
                 Attraction attr = selectedAttractions.get(i);
                 mMap.addMarker(new MarkerOptions().position(attractionLatLng).title(attr.getName()));
             }
-            
+
             Route route = direction.getRouteList().get(0);
             int legCount = route.getLegList().size();
 

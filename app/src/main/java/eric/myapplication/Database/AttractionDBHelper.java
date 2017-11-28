@@ -12,9 +12,9 @@ import eric.myapplication.R;
 import static eric.myapplication.Database.AttractionContract.AttractionEntry.*;
 
 public class AttractionDBHelper extends SQLiteOpenHelper {
-    private static final String DATABASE_NAME = "AttractionDB";
-    private static final int DATABASE_VER = 1;
-    private static final Object[][] attractionArray = {
+    private static final String DB_NAME = "AttractionDB";
+    private static final int DB_VER = 1;
+    private static final Object[][] ATTRACTION_ARRAY = {
             {"Buddha Tooth Relic Temple", "Lorem Ipsum",
                     R.mipmap.buddha_tooth_relic_temple},
             {"Kwan Im Thong Hood Cho Temple", "Lorem Ipsum",
@@ -38,19 +38,20 @@ public class AttractionDBHelper extends SQLiteOpenHelper {
     };
 
     public AttractionDBHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VER);
+        super(context, DB_NAME, null, DB_VER);
     }
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        Log.i("eric1", "Created");
         final String SQL_CREATE_SELECTED_TABLE = createTable(SELECTED_TABLE_NAME);
         final String SQL_CREATE_AVAILABLE_TABLE = createTable(AVAILABLE_TABLE_NAME);
 
         sqLiteDatabase.execSQL(SQL_CREATE_SELECTED_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_AVAILABLE_TABLE);
 
+        // Initialize AvailableTable with all attractions
         initTable(sqLiteDatabase, AVAILABLE_TABLE_NAME);
+        Log.i("eric1", "AttractionDB created.");
     }
 
     @Override
@@ -68,7 +69,7 @@ public class AttractionDBHelper extends SQLiteOpenHelper {
     }
 
     private void initTable(SQLiteDatabase sqLiteDatabase, String tableName) {
-        for (Object[] attr : attractionArray) {
+        for (Object[] attr : ATTRACTION_ARRAY) {
             ContentValues values = new ContentValues();
             values.put(COL_NAME, (String) attr[0]);
             values.put(COL_INFO, (String) attr[1]);
