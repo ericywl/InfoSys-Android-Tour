@@ -63,38 +63,8 @@ public class PlanActivity extends AppCompatActivity {
         // Click on ListView item to remove attraction
         attrListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view,
-                                    final int position, long id) {
-                AlertDialog.Builder adb = new AlertDialog.Builder(PlanActivity.this);
-                final Attraction attr = selectedAttractions.get(position);
+            public void onItemClick(AdapterView<?> adapterView, View view, final int position, long id) {
 
-                adb.setTitle("Delete?");
-                adb.setMessage("Are you sure you want to delete " + attr.getName());
-                adb.setNegativeButton("Cancel", null);
-                adb.setPositiveButton("Ok", new AlertDialog.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        attractionDB.beginTransaction();
-                        String attrName = attr.getName();
-
-                        // Remove from list of selected attractions
-                        selectedAttractions.remove(attr);
-                        removeFromTable(SELECTED_TABLE_NAME, attrName);
-
-                        // Add to list of available attractions
-                        availableAttractionNames.add(attrName);
-                        addToTable(AVAILABLE_TABLE_NAME, attr);
-
-                        Collections.sort(availableAttractionNames);
-                        attractionDB.setTransactionSuccessful();
-                        attractionDB.endTransaction();
-                        adapter.notifyDataSetChanged();
-
-                        Toast.makeText(PlanActivity.this, attrName + " removed.",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-                adb.show();
             }
         });
 
