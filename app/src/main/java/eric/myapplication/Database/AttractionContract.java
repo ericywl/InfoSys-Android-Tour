@@ -12,6 +12,6 @@ public class AttractionContract {
         public static final String COL_ADDR = "Address";
         public static final String COL_INFO = "Description";
         public static final String COL_IMAGE = "Image";
-        public static final String COL_LARGE_IMAGE = "Large Image";
+        public static final String COL_LARGE_IMAGE = "LargeImage";
     }
 }

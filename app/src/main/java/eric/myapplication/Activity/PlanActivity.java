@@ -68,6 +68,7 @@ public class PlanActivity extends AppCompatActivity {
         attrListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, final int position, long id) {
+                Log.i("eric1", "Clicked");
                 Attraction attr = selectedAttractions.get(position);
                 Intent intent = new Intent(view.getContext(), InfoActivity.class);
                 intent.putExtra(INFO_KEY, attr.getDescription());
