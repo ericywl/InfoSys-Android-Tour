@@ -6,15 +6,27 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="eric.myapplication.InfoActivity">
+    tools:context="eric.myapplication.Activity.InfoActivity">
 
     <ImageView
         android:id="@+id/large_image_placeholder"
         android:layout_width="match_parent"
-        android:layout_height="200sp"
+        android:layout_height="180sp"
         android:adjustViewBounds="true"
+        android:contentDescription="Temple Image"
         android:scaleType="centerCrop"
-        android:src="@drawable/landing_temple"
-        android:contentDescription="Temple Image"/>
+        android:src="@drawable/landing_temple"/>
+
+    <com.uncopt.android.widget.text.justify.JustifiedTextView
+        android:id="@+id/info_text_placeholder"
+        android:background="@drawable/info_text_bg"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_margin="10sp"
+        android:padding="13sp"
+        android:text="Placeholder"
+        android:scrollbars="vertical"
+        android:textSize="18sp"/>
 
 </LinearLayout>

@@ -26,6 +26,7 @@
         <activity
             android:name=".Activity.PlanActivity"
             android:parentActivityName=".Activity.LandingActivity"/>
+
         <activity
             android:name=".Activity.PlanMapsActivity"
             android:label="@string/title_activity_maps"
@@ -37,7 +38,10 @@
 
         <activity android:name=".Activity.TravelActivity">
         </activity>
-        <activity android:name=".InfoActivity">
+
+        <activity
+            android:name=".Activity.InfoActivity"
+            android:parentActivityName=".Activity.PlanActivity">
         </activity>
     </application>
 

@@ -1,12 +1,10 @@
 package eric.myapplication.Activity;
 
 import android.content.ContentValues;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.NavUtils;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,7 +13,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,7 +22,6 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import eric.myapplication.Database.AttractionDBHelper;
-import eric.myapplication.InfoActivity;
 import eric.myapplication.R;
 import eric.myapplication.Misc.Attraction;
 import eric.myapplication.Adapter.CustomListAdapter;
@@ -39,6 +35,7 @@ public class PlanActivity extends AppCompatActivity {
     public static final String LIST_KEY = "LIST";
     public static final String INFO_KEY = "INFO";
     public static final String IMAGE_KEY = "IMAGE";
+    public static final String NAME_KEY = "NAME";
 
     private SQLiteDatabase attractionDB;
     private CustomListAdapter adapter;
@@ -71,6 +68,7 @@ public class PlanActivity extends AppCompatActivity {
                 Log.i("eric1", "Clicked");
                 Attraction attr = selectedAttractions.get(position);
                 Intent intent = new Intent(view.getContext(), InfoActivity.class);
+                intent.putExtra(NAME_KEY, attr.getName());
                 intent.putExtra(INFO_KEY, attr.getDescription());
                 intent.putExtra(IMAGE_KEY, attr.getLargeImage());
                 startActivity(intent);

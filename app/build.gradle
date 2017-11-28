@@ -29,4 +29,5 @@ dependencies {
     compile 'com.github.MdFarhanRaja:SearchableSpinner:1.7'
     compile 'com.akexorcist:googledirectionlibrary:1.1.0'
     compile 'com.android.support:design:26.1.0'
+    compile 'com.uncopt:android.justified:1.0'
 }
