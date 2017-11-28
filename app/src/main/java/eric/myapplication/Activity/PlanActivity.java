@@ -214,9 +214,9 @@ public class PlanActivity extends AppCompatActivity {
 
     // Remove attraction with the respective name from the database table
     private void removeFromTable(String tableName, String attrName) {
-        String whereClause = COL_NAME + "=?";
-        String[] whereArgs = {attrName};
-        attractionDB.delete(tableName, whereClause, whereArgs);
+        String selection = COL_NAME + "=?";
+        String[] selectionArgs = {attrName};
+        attractionDB.delete(tableName, selection, selectionArgs);
     }
 
     // Get the attraction with the corresponding name
