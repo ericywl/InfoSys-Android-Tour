@@ -34,7 +34,7 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/info"
+            android:id="@+id/addr"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="TextView"

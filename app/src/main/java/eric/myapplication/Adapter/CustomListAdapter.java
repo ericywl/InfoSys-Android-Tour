@@ -29,7 +29,7 @@ public class CustomListAdapter extends ArrayAdapter {
 
     private class ViewHolder {
         private TextView nameText;
-        private TextView infoText;
+        private TextView addrText;
         private ImageView imageView;
     }
 
@@ -45,7 +45,7 @@ public class CustomListAdapter extends ArrayAdapter {
 
             holder = new ViewHolder();
             holder.nameText = view.findViewById(R.id.name);
-            holder.infoText = view.findViewById(R.id.info);
+            holder.addrText = view.findViewById(R.id.addr);
             holder.imageView = view.findViewById(R.id.image_placeholder);
 
             view.setTag(holder);
@@ -55,7 +55,7 @@ public class CustomListAdapter extends ArrayAdapter {
 
         Attraction attr = selectedList.get(position);
         holder.nameText.setText(attr.getName());
-        holder.infoText.setText(attr.getDescription());
+        holder.addrText.setText(attr.getAddress());
         holder.imageView.setImageResource(attr.getImage());
 
         return view;

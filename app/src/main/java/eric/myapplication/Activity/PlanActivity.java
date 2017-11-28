@@ -201,12 +201,13 @@ public class PlanActivity extends AppCompatActivity {
 
     /* SQLITE DATABASE RELATED METHODS*/
 
-    // Add attraction with the respective name to the database table
+    // Add attraction to the database table
     private void addToTable(String tableName, Attraction attr) {
         ContentValues values = new ContentValues();
         values.put(COL_NAME, attr.getName());
-        values.put(COL_INFO, attr.getDescription());
+        values.put(COL_ADDR, attr.getAddress());
         values.put(COL_IMAGE, attr.getImage());
+        values.put(COL_INFO, attr.getDescription());
 
         long id = attractionDB.insert(tableName, null, values);
         Log.i("eric1", "" + id);
@@ -227,17 +228,19 @@ public class PlanActivity extends AppCompatActivity {
                 null, selection, selectionArgs, null, null, COL_NAME);
 
         int nameIndex = cursor.getColumnIndex(COL_NAME);
-        int infoIndex = cursor.getColumnIndex(COL_INFO);
+        int addrIndex = cursor.getColumnIndex(COL_ADDR);
         int imageIndex = cursor.getColumnIndex(COL_IMAGE);
+        int infoIndex = cursor.getColumnIndex(COL_INFO);
 
         while (cursor.moveToNext()) {
             String name = cursor.getString(nameIndex);
+            String addr = cursor.getString(addrIndex);
             String info = cursor.getString(infoIndex);
             int image = cursor.getInt(imageIndex);
 
             if (name.equals(attrName)) {
                 cursor.close();
-                return new Attraction(name, info, image);
+                return new Attraction(name, addr, image, info);
             }
         }
 
@@ -252,15 +255,17 @@ public class PlanActivity extends AppCompatActivity {
                 null, null, null, null, null, COL_NAME);
 
         int nameIndex = cursor.getColumnIndex(COL_NAME);
-        int infoIndex = cursor.getColumnIndex(COL_INFO);
+        int addrIndex = cursor.getColumnIndex(COL_ADDR);
         int imageIndex = cursor.getColumnIndex(COL_IMAGE);
+        int infoIndex = cursor.getColumnIndex(COL_INFO);
 
         while (cursor.moveToNext()) {
             String name = cursor.getString(nameIndex);
+            String addr = cursor.getString(addrIndex);
             String info = cursor.getString(infoIndex);
             int image = cursor.getInt(imageIndex);
 
-            Attraction attr = new Attraction(name, info, image);
+            Attraction attr = new Attraction(name, addr, image, info);
             output.add(attr);
         }
 

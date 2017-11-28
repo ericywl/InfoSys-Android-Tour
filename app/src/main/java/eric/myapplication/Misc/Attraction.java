@@ -7,13 +7,15 @@ import java.io.Serializable;
 
 public class Attraction implements Comparable<Attraction>, Serializable {
     private String name;
-    private String description;
+    private String address;
     private Integer image;
+    private String description;
 
-    public Attraction(String name, String description, Integer image) {
+    public Attraction(String name, String address, Integer image, String description) {
         this.name = name;
-        this.description = description;
+        this.address = address;
         this.image = image;
+        this.description = description;
     }
 
     public String getName() {
@@ -26,6 +28,10 @@ public class Attraction implements Comparable<Attraction>, Serializable {
 
     public Integer getImage() {
         return image;
+    }
+
+    public String getAddress() {
+        return address;
     }
 
     @Override

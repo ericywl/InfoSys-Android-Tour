@@ -7,35 +7,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import eric.myapplication.R;
+import static eric.myapplication.Database.AttractionData.*;
 
 import static eric.myapplication.Database.AttractionContract.AttractionEntry.*;
 
 public class AttractionDBHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "AttractionDB";
     private static final int DB_VER = 1;
-    private static final Object[][] ATTRACTION_ARRAY = {
-            {"Buddha Tooth Relic Temple", "Lorem Ipsum",
-                    R.mipmap.buddha_tooth_relic_temple},
-            {"Kwan Im Thong Hood Cho Temple", "Lorem Ipsum",
-                    R.mipmap.kwan_im_thong_hood_cho_temple},
-            {"Siong Lim Temple", "Lorem Ipsum",
-                    R.mipmap.siong_lim_temple},
-            {"Thian Hock Keng Temple", "Lorem Ipsum",
-                    R.mipmap.thian_hock_keng_temple},
-            {"Kong Meng San Phor Kark See Monastery", "Lorem Ipsum",
-                    R.mipmap.kong_meng_san_phor_kark_see_temple},
-            {"Burmese Buddhist Temple", "Lorem Ipsum",
-                    R.mipmap.burmese_buddhist_temple},
-            {"Sakya Muni Buddha Gaya Temple", "Lorem Ipsum",
-                    R.mipmap.sakya_muni_buddha_gaya_temple},
-            {"Foo Hai Ch'an Monastery", "Lorem Ipsum",
-                    R.mipmap.foo_hai_chan_monastery},
-            {"Leong San Temple", "Lorem Ipsum",
-                    R.mipmap.leong_san_see_temple},
-            {"Wat Ananda Metyarama", "Lorem Ipsum",
-                    R.mipmap.wat_ananda_metyarama_thai_buddhist_temple}
-    };
 
     public AttractionDBHelper(Context context) {
         super(context, DB_NAME, null, DB_VER);
@@ -64,16 +42,18 @@ public class AttractionDBHelper extends SQLiteOpenHelper {
     private String createTable(String tableName) {
         return "CREATE TABLE " + tableName + "("
                 + COL_NAME + " TEXT PRIMARY KEY, "
-                + COL_INFO + " TEXT NOT NULL, "
-                + COL_IMAGE + " INTEGER)";
+                + COL_ADDR + " TEXT NOT NULL, "
+                + COL_IMAGE + " INTEGER, "
+                + COL_INFO + " TEXT NOT NULL)";
     }
 
     private void initTable(SQLiteDatabase sqLiteDatabase, String tableName) {
-        for (Object[] attr : ATTRACTION_ARRAY) {
+        for (Object[] attrVal : ATTRACTION_ARRAY) {
             ContentValues values = new ContentValues();
-            values.put(COL_NAME, (String) attr[0]);
-            values.put(COL_INFO, (String) attr[1]);
-            values.put(COL_IMAGE, (int) attr[2]);
+            values.put(COL_NAME, (String) attrVal[0]);
+            values.put(COL_ADDR, (String) attrVal[1]);
+            values.put(COL_IMAGE, (int) attrVal[2]);
+            values.put(COL_INFO, (String) attrVal[3]);
 
             sqLiteDatabase.insert(tableName, null, values);
         }
