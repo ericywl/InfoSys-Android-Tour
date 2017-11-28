@@ -29,6 +29,7 @@ import static eric.myapplication.Database.AttractionContract.AttractionEntry.AVA
 import static eric.myapplication.Database.AttractionContract.AttractionEntry.COL_ADDR;
 import static eric.myapplication.Database.AttractionContract.AttractionEntry.COL_IMAGE;
 import static eric.myapplication.Database.AttractionContract.AttractionEntry.COL_INFO;
+import static eric.myapplication.Database.AttractionContract.AttractionEntry.COL_LARGE_IMAGE;
 import static eric.myapplication.Database.AttractionContract.AttractionEntry.COL_NAME;
 import static eric.myapplication.Database.AttractionContract.AttractionEntry.SELECTED_TABLE_NAME;
 import static eric.myapplication.Activity.PlanActivity.*;
@@ -80,6 +81,7 @@ public class CustomListAdapter extends ArrayAdapter {
         AttractionDBHelper attractionDBHelper = new AttractionDBHelper(context);
         attractionDB = attractionDBHelper.getWritableDatabase();
 
+        // Click on deleteBtn to delete the attraction from selected
         ImageButton deleteBtn = view.findViewById(R.id.delete_list);
         deleteBtn.setTag(position);
         deleteBtn.setOnClickListener(new View.OnClickListener() {
@@ -129,6 +131,7 @@ public class CustomListAdapter extends ArrayAdapter {
         values.put(COL_ADDR, attr.getAddress());
         values.put(COL_IMAGE, attr.getImage());
         values.put(COL_INFO, attr.getDescription());
+        values.put(COL_LARGE_IMAGE, attr.getLargeImage());
 
         long id = attractionDB.insert(tableName, null, values);
         Log.i("eric1", "" + id);

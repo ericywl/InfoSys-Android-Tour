@@ -8,7 +8,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import static eric.myapplication.Database.AttractionData.*;
-
 import static eric.myapplication.Database.AttractionContract.AttractionEntry.*;
 
 public class AttractionDBHelper extends SQLiteOpenHelper {
@@ -44,18 +43,22 @@ public class AttractionDBHelper extends SQLiteOpenHelper {
                 + COL_NAME + " TEXT PRIMARY KEY, "
                 + COL_ADDR + " TEXT NOT NULL, "
                 + COL_IMAGE + " INTEGER, "
+                + COL_LARGE_IMAGE + " INTEGER, "
                 + COL_INFO + " TEXT NOT NULL)";
     }
 
     private void initTable(SQLiteDatabase sqLiteDatabase, String tableName) {
+        Log.i("eric1", "Initializing " + tableName);
         for (Object[] attrVal : ATTRACTION_ARRAY) {
             ContentValues values = new ContentValues();
             values.put(COL_NAME, (String) attrVal[0]);
             values.put(COL_ADDR, (String) attrVal[1]);
             values.put(COL_IMAGE, (int) attrVal[2]);
-            values.put(COL_INFO, (String) attrVal[3]);
+            values.put(COL_LARGE_IMAGE, (int) attrVal[3]);
+            values.put(COL_INFO, (String) attrVal[4]);
 
-            sqLiteDatabase.insert(tableName, null, values);
+            long id = sqLiteDatabase.insert(tableName, null, values);
+            Log.i("eric1", id + "");
         }
     }
 }

@@ -5,8 +5,7 @@
     <string name="empty_list">The attractions list is currently empty.</string>
     <string name="add_attr">Add Attractions</string>
     <string name="done">Done</string>
-    <string name="info_btn">INFO</string>
-    <string name="plan_btn">PLAN</string>
+    <string name="plan_btn">PLAN YOUR TRIP</string>
     <string name="remove_all">Remove All</string>
     <string name="settings">Settings</string>
 </resources>

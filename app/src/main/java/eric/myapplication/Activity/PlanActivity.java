@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import eric.myapplication.Database.AttractionDBHelper;
+import eric.myapplication.InfoActivity;
 import eric.myapplication.R;
 import eric.myapplication.Misc.Attraction;
 import eric.myapplication.Adapter.CustomListAdapter;
@@ -34,14 +35,16 @@ import in.galaxyofandroid.spinerdialog.SpinnerDialog;
 import static eric.myapplication.Database.AttractionContract.AttractionEntry.*;
 
 public class PlanActivity extends AppCompatActivity {
-    public final static String SELECTED_KEY = "SELECTED";
-    public final static String LIST_KEY = "LIST";
+    public static final String SELECTED_KEY = "SELECTED";
+    public static final String LIST_KEY = "LIST";
+    public static final String INFO_KEY = "INFO";
+    public static final String IMAGE_KEY = "IMAGE";
 
     private SQLiteDatabase attractionDB;
     private CustomListAdapter adapter;
 
     public static ArrayList<String> availableAttractionNames;
-    public static ArrayList<Attraction> selectedAttractions;
+    private ArrayList<Attraction> selectedAttractions;
     private SpinnerDialog spinnerDialog;
 
     @Override
@@ -61,11 +64,15 @@ public class PlanActivity extends AppCompatActivity {
         attrListView.setAdapter(adapter);
         attrListView.setEmptyView(emptyView);
 
-        // Click on ListView item to remove attraction
+        // Click on ListView item to view more info
         attrListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, final int position, long id) {
-
+                Attraction attr = selectedAttractions.get(position);
+                Intent intent = new Intent(view.getContext(), InfoActivity.class);
+                intent.putExtra(INFO_KEY, attr.getDescription());
+                intent.putExtra(IMAGE_KEY, attr.getLargeImage());
+                startActivity(intent);
             }
         });
 
@@ -179,6 +186,7 @@ public class PlanActivity extends AppCompatActivity {
         values.put(COL_ADDR, attr.getAddress());
         values.put(COL_IMAGE, attr.getImage());
         values.put(COL_INFO, attr.getDescription());
+        values.put(COL_LARGE_IMAGE, attr.getLargeImage());
 
         long id = attractionDB.insert(tableName, null, values);
         Log.i("eric1", "" + id);
@@ -201,6 +209,7 @@ public class PlanActivity extends AppCompatActivity {
         int nameIndex = cursor.getColumnIndex(COL_NAME);
         int addrIndex = cursor.getColumnIndex(COL_ADDR);
         int imageIndex = cursor.getColumnIndex(COL_IMAGE);
+        int largeImageIndex = cursor.getColumnIndex(COL_LARGE_IMAGE);
         int infoIndex = cursor.getColumnIndex(COL_INFO);
 
         while (cursor.moveToNext()) {
@@ -208,10 +217,11 @@ public class PlanActivity extends AppCompatActivity {
             String addr = cursor.getString(addrIndex);
             String info = cursor.getString(infoIndex);
             int image = cursor.getInt(imageIndex);
+            int largeImage = cursor.getInt(largeImageIndex);
 
             if (name.equals(attrName)) {
                 cursor.close();
-                return new Attraction(name, addr, image, info);
+                return new Attraction(name, addr, image, largeImage, info);
             }
         }
 
@@ -228,6 +238,7 @@ public class PlanActivity extends AppCompatActivity {
         int nameIndex = cursor.getColumnIndex(COL_NAME);
         int addrIndex = cursor.getColumnIndex(COL_ADDR);
         int imageIndex = cursor.getColumnIndex(COL_IMAGE);
+        int largeImageIndex = cursor.getColumnIndex(COL_LARGE_IMAGE);
         int infoIndex = cursor.getColumnIndex(COL_INFO);
 
         while (cursor.moveToNext()) {
@@ -235,8 +246,9 @@ public class PlanActivity extends AppCompatActivity {
             String addr = cursor.getString(addrIndex);
             String info = cursor.getString(infoIndex);
             int image = cursor.getInt(imageIndex);
+            int largeImage = cursor.getInt(largeImageIndex);
 
-            Attraction attr = new Attraction(name, addr, image, info);
+            Attraction attr = new Attraction(name, addr, image, largeImage, info);
             output.add(attr);
         }
 
@@ -253,10 +265,12 @@ public class PlanActivity extends AppCompatActivity {
         int nameIndex = cursor.getColumnIndex(COL_NAME);
         while (cursor.moveToNext()) {
             String name = cursor.getString(nameIndex);
+            Log.i("eric1", name);
             output.add(name);
         }
 
         cursor.close();
+        Log.i("eric1", "get name list");
         return output;
     }
 }

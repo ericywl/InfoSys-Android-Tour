@@ -9,12 +9,14 @@ public class Attraction implements Comparable<Attraction>, Serializable {
     private String name;
     private String address;
     private Integer image;
+    private Integer largeImage;
     private String description;
 
-    public Attraction(String name, String address, Integer image, String description) {
+    public Attraction(String name, String address, Integer image, Integer largeImage ,String description) {
         this.name = name;
         this.address = address;
         this.image = image;
+        this.largeImage = largeImage;
         this.description = description;
     }
 
@@ -32,6 +34,10 @@ public class Attraction implements Comparable<Attraction>, Serializable {
 
     public String getAddress() {
         return address;
+    }
+
+    public Integer getLargeImage() {
+        return largeImage;
     }
 
     @Override

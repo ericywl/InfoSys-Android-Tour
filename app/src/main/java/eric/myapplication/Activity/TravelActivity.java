@@ -1,4 +1,4 @@
-package eric.myapplication;
+package eric.myapplication.Activity;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.widget.TextView;
 
 import eric.myapplication.Database.TravelDBHelper;
+import eric.myapplication.R;
 
 import static eric.myapplication.Database.TravelContract.TravelEntry.*;
 
