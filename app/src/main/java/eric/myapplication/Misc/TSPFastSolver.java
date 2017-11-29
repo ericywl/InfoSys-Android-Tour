@@ -7,15 +7,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static eric.myapplication.Database.TravelContract.TravelEntry.*;
-import static eric.myapplication.Database.TravelDBHelper.*;
+import static eric.myapplication.Database.TravelContract.TravelEntry.PT_COST;
+import static eric.myapplication.Database.TravelContract.TravelEntry.PT_TIME;
+import static eric.myapplication.Database.TravelContract.TravelEntry.TAXI_COST;
+import static eric.myapplication.Database.TravelContract.TravelEntry.TAXI_TIME;
+import static eric.myapplication.Database.TravelContract.TravelEntry.WALK_TIME;
+import static eric.myapplication.Database.TravelDBHelper.getEntry;
 
-public class TSPBruteForce {
+public class TSPFastSolver {
     private String originName;
     private SQLiteDatabase travelDB;
     private List<Route> allRoutes = new ArrayList<>();
 
-    public TSPBruteForce(SQLiteDatabase sqLiteDatabase) {
+    public TSPFastSolver(SQLiteDatabase sqLiteDatabase) {
         this.travelDB = sqLiteDatabase;
     }
 
@@ -28,19 +32,20 @@ public class TSPBruteForce {
         findAllRoutes(tempRoute, placesToVisit);
 
         Collections.sort(allRoutes);
-        Route tempBestRoute = allRoutes.get(0);
-        tempBestRoute.setPaths(initPaths(tempBestRoute.getPlaces()));
-        if (tempBestRoute.getCostWeight() <= budget) {
-            return tempBestRoute;
+        Route bestRoute = allRoutes.get(0);
+        bestRoute.setPaths(initPaths(bestRoute.getPlaces()));
+        if (bestRoute.getCostWeight() <= budget) {
+            return bestRoute;
         }
 
+        // Best route with all TAXI did not meet the budget
         // Replace transport modes on paths that are the least efficient
-        List<Path> replacedPaths = tempBestRoute.getPaths();
+        List<Path> replacedPaths = bestRoute.getPaths();
         List<Path> sortedPaths = new ArrayList<>(replacedPaths);
         Collections.sort(sortedPaths);
 
         int index = 0;
-        while (tempBestRoute.getCostWeight() > budget) {
+        while (bestRoute.getCostWeight() > budget) {
             Path sPath = sortedPaths.get(index);
             if (sPath.getTimeIncreasePerCostSaving() > 0) {
                 for (Path oPath : replacedPaths)
@@ -49,19 +54,19 @@ public class TSPBruteForce {
 
                         double timeIncrease = sPath.getAltTime() - sPath.getTaxiTime();
                         double costDecrease = sPath.getTaxiCost() - sPath.getAltCost();
-                        tempBestRoute.addTimeWeight(timeIncrease);
-                        tempBestRoute.reduceCostWeight(costDecrease);
+                        bestRoute.addTimeWeight(timeIncrease);
+                        bestRoute.reduceCostWeight(costDecrease);
                     }
             }
 
             index++;
         }
 
-        tempBestRoute.setPaths(replacedPaths);
+        bestRoute.setPaths(replacedPaths);
         travelDB.setTransactionSuccessful();
         travelDB.endTransaction();
 
-        return tempBestRoute;
+        return bestRoute;
     }
 
     private void findAllRoutes(List<String> tempRoute, List<String> unvisitedAttractions) {
@@ -74,14 +79,26 @@ public class TSPBruteForce {
             return;
         }
 
-        for (String attrName : unvisitedAttractions) {
-            List<String> newRoute = new ArrayList<>(tempRoute);
-            List<String> newUnvisitedAttractions = new ArrayList<>(unvisitedAttractions);
+        String currentAttr = tempRoute.get(tempRoute.size() - 1);
+        String nearestAttr = null;
+        double leastTime = 0;
 
-            newRoute.add(attrName);
-            newUnvisitedAttractions.remove(attrName);
-            findAllRoutes(newRoute, newUnvisitedAttractions);
+        for (String attrName : unvisitedAttractions) {
+            if (nearestAttr == null) {
+                nearestAttr = attrName;
+                leastTime = getEntry(travelDB, TAXI_TIME, currentAttr, nearestAttr);
+            }
+
+            double currentTime = getEntry(travelDB, TAXI_TIME, currentAttr, attrName);
+            if (currentTime < leastTime) {
+                nearestAttr = attrName;
+                leastTime = currentTime;
+            }
         }
+
+        tempRoute.add(nearestAttr);
+        unvisitedAttractions.remove(nearestAttr);
+        findAllRoutes(tempRoute, unvisitedAttractions);
     }
 
     private double routeWeight(String tableName, List<String> route) {

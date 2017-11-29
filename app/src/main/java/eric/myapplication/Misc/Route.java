@@ -54,7 +54,7 @@ public class Route implements Comparable<Route> {
         outputBld.append("\n\n");
         outputBld.append("Total time: " + timeWeight);
         outputBld.append("\n");
-        outputBld.append("Total cost: " + costWeight);
+        outputBld.append("Total cost: " + Math.round(costWeight * 1000.0) / 1000.0);
 
         return outputBld.toString();
     }

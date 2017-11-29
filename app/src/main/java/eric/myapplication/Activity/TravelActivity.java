@@ -1,8 +1,8 @@
 package eric.myapplication.Activity;
 
 import android.database.sqlite.SQLiteDatabase;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -13,10 +13,11 @@ import java.util.List;
 import eric.myapplication.Database.TravelDBHelper;
 import eric.myapplication.Misc.Route;
 import eric.myapplication.Misc.TSPBruteForce;
+import eric.myapplication.Misc.TSPFastSolver;
 import eric.myapplication.R;
 
 import static eric.myapplication.Database.TravelContract.TravelEntry.*;
-import static eric.myapplication.Database.TravelDBHelper.*;
+import static eric.myapplication.Database.TravelDBHelper.getAttractionNameList;
 
 public class TravelActivity extends AppCompatActivity {
     private List<String> attrNameList;
@@ -33,15 +34,22 @@ public class TravelActivity extends AppCompatActivity {
         attrNameList = getAttractionNameList(travelDB, TAXI_TIME);
 
         List<String> placesToVisit = new ArrayList<>(Arrays.asList(
+                BUDDHA_TOOTH,
+                KWAN_IM,
                 SIONG_LIM,
-                WAT_ANANDA,
                 THIAN_HOCK,
+                KONG_MENG,
                 BURMESE,
-                KONG_MENG
+                SAKYA_MUNI
         ));
 
-        TSPBruteForce tspBruteForce = new TSPBruteForce(travelDB);
-        Route bestRoute = tspBruteForce.findBestRoute(MBS, placesToVisit, 20);
+        TSPFastSolver tspSolver = new TSPFastSolver(travelDB);
+        // TSPBruteForce tspSolver = new TSPBruteForce(travelDB);
+        long startTime = System.nanoTime();
+        Route bestRoute = tspSolver.findBestRoute(MBS, placesToVisit, 20);
+        long endTime = System.nanoTime();
+        long elapsedTime = endTime - startTime;
+        Log.i("eric1time", "" + (double) elapsedTime / 1000000000.0);
 
         dbtext.setText(bestRoute.toString());
     }
