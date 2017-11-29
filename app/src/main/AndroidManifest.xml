@@ -23,6 +23,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
         <activity
             android:name=".Activity.PlanActivity"
             android:parentActivityName=".Activity.LandingActivity"/>
@@ -32,16 +33,16 @@
             android:label="@string/title_activity_maps"
             android:parentActivityName=".Activity.PlanActivity"/>
 
+        <activity
+            android:name=".Activity.InfoActivity"
+            android:parentActivityName=".Activity.PlanActivity"/>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key"/>
 
         <activity android:name=".Activity.TravelActivity">
-        </activity>
 
-        <activity
-            android:name=".Activity.InfoActivity"
-            android:parentActivityName=".Activity.PlanActivity">
         </activity>
     </application>
 

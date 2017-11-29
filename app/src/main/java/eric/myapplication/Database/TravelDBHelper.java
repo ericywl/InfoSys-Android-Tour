@@ -3,8 +3,13 @@ package eric.myapplication.Database;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static eric.myapplication.Database.TravelContract.TravelEntry.*;
 import static eric.myapplication.Database.TravelData.*;
@@ -82,5 +87,38 @@ public class TravelDBHelper extends SQLiteOpenHelper {
 
             sqLiteDatabase.insert(tableName, null, values);
         }
+    }
+
+    public static List<String> getAttractionNameList(SQLiteDatabase sqLiteDatabase, String tableName) {
+        List<String> output = new ArrayList<>();
+        Cursor cursor = sqLiteDatabase.query(tableName,
+                null, null, null, null, null, ORIGIN);
+
+        int nameIndex = cursor.getColumnIndex(ORIGIN);
+        while (cursor.moveToNext()) {
+            String name = cursor.getString(nameIndex);
+            output.add(name);
+        }
+
+        cursor.close();
+        Log.i("eric1", "Retrieved name list.");
+        return output;
+    }
+
+    public static double getEntry(SQLiteDatabase sqLiteDatabase,String tableName, String from, String to) {
+        String whereClause = ORIGIN + "=?";
+        String[] whereArgs = {from};
+        Cursor cursor = sqLiteDatabase.query(tableName, null, whereClause, whereArgs,
+                null, null, null);
+
+        double output = 0;
+        int placeIndex = cursor.getColumnIndex(to);
+
+        while (cursor.moveToNext()) {
+            output = cursor.getInt(placeIndex);
+            cursor.close();
+        }
+
+        return output;
     }
 }

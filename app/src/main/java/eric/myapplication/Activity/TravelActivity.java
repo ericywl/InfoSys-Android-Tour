@@ -1,49 +1,46 @@
 package eric.myapplication.Activity;
 
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import eric.myapplication.Database.TravelDBHelper;
+import eric.myapplication.Misc.Route;
+import eric.myapplication.Misc.TSPBruteForce;
 import eric.myapplication.R;
 
 import static eric.myapplication.Database.TravelContract.TravelEntry.*;
+import static eric.myapplication.Database.TravelDBHelper.*;
 
 public class TravelActivity extends AppCompatActivity {
-    private TextView dbtext;
-    private SQLiteDatabase travelDB;
+    private List<String> attrNameList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_travel);
 
-        dbtext = findViewById(R.id.dbtext);
+        TextView dbtext = findViewById(R.id.dbtext);
 
         TravelDBHelper travelDBHelper = new TravelDBHelper(this);
-        travelDB = travelDBHelper.getReadableDatabase();
+        SQLiteDatabase travelDB = travelDBHelper.getReadableDatabase();
+        attrNameList = getAttractionNameList(travelDB, TAXI_TIME);
 
+        List<String> placesToVisit = new ArrayList<>(Arrays.asList(
+                SIONG_LIM,
+                WAT_ANANDA,
+                THIAN_HOCK,
+                BURMESE
+        ));
 
-    }
+        TSPBruteForce tspBruteForce = new TSPBruteForce(travelDB);
+        Route bestRoute = tspBruteForce.findBestRoute(MBS, placesToVisit);
 
-    private double getEntry(String tableName, String from, String to) {
-        String whereClause = ORIGIN + "=?";
-        String[] whereArgs = {from};
-        Cursor cursor = travelDB.query(tableName, null, whereClause, whereArgs,
-                null, null, null);
-
-        double output = 0;
-        int placeIndex = cursor.getColumnIndex(to);
-
-        while (cursor.moveToNext()) {
-            output = cursor.getInt(placeIndex);
-            cursor.close();
-        }
-
-        return output;
+        dbtext.setText(bestRoute.toString());
     }
 }

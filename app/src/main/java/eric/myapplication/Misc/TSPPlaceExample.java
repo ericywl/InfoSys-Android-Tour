@@ -1,13 +1,13 @@
-package eric.myapplication.Algorithm;
+package eric.myapplication.Misc;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class TSPPlace {
+public class TSPPlaceExample {
     private String name;
     private Map<String, Integer> weights = new HashMap<>();
 
-    public TSPPlace(String name) {
+    public TSPPlaceExample(String name) {
         this.name = name;
     }
 
