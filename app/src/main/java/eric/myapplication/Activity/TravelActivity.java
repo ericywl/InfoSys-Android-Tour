@@ -28,7 +28,6 @@ public class TravelActivity extends AppCompatActivity {
 
         TextView dbtext = findViewById(R.id.dbtext);
 
-        Log.i("eric1", "db");
         TravelDBHelper travelDBHelper = new TravelDBHelper(this);
         SQLiteDatabase travelDB = travelDBHelper.getReadableDatabase();
         attrNameList = getAttractionNameList(travelDB, TAXI_TIME);
@@ -37,12 +36,12 @@ public class TravelActivity extends AppCompatActivity {
                 SIONG_LIM,
                 WAT_ANANDA,
                 THIAN_HOCK,
-                BURMESE
+                BURMESE,
+                KONG_MENG
         ));
 
-        Log.i("eric1", "bruteforce");
         TSPBruteForce tspBruteForce = new TSPBruteForce(travelDB);
-        Route bestRoute = tspBruteForce.findBestRoute(MBS, placesToVisit, 50);
+        Route bestRoute = tspBruteForce.findBestRoute(MBS, placesToVisit, 20);
 
         dbtext.setText(bestRoute.toString());
     }

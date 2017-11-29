@@ -17,6 +17,18 @@ public class Route implements Comparable<Route> {
         this.costWeight = totalCost;
     }
 
+    public void addTimeWeight(double amount) {
+        if (amount > 0) {
+            timeWeight += amount;
+        }
+    }
+
+    public void reduceCostWeight(double amount) {
+        if (amount > 0) {
+            costWeight -= amount;
+        }
+    }
+
     @Override
     public int compareTo(@NonNull Route comparedRoute) {
         if (this.getTimeWeight() < comparedRoute.getTimeWeight()) {
@@ -32,12 +44,27 @@ public class Route implements Comparable<Route> {
 
     @Override
     public String toString() {
-        return places.toString() + "\n\nTotal time: " + timeWeight
-                + "\nTotal cost: " + costWeight;
+        StringBuilder outputBld = new StringBuilder();
+
+        for (Path path : paths) {
+            outputBld.append(path.toString());
+            outputBld.append("\n");
+        }
+
+        outputBld.append("\n\n");
+        outputBld.append("Total time: " + timeWeight);
+        outputBld.append("\n");
+        outputBld.append("Total cost: " + costWeight);
+
+        return outputBld.toString();
     }
 
     public List<String> getPlaces() {
         return places;
+    }
+
+    public List<Path> getPaths() {
+        return paths;
     }
 
     public void setPaths(List<Path> paths) {

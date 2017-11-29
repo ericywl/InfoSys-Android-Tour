@@ -6,9 +6,8 @@ import android.support.annotation.NonNull;
 public class Path implements Comparable<Path>{
     private String from;
     private String to;
-    private String transportMode;
     private String altTransportMode;
-    private boolean setToAltTransportMode = false;
+    private String transportMode = "TAXI";
 
     private double taxiTime;
     private double taxiCost;
@@ -20,7 +19,6 @@ public class Path implements Comparable<Path>{
                 String altTransportMode, double timeIncreasePerCostSaving) {
         this.from = from;
         this.to = to;
-        this.transportMode = "TAXI";
         this.altTransportMode = altTransportMode;
 
         this.taxiTime = taxiTime;
@@ -30,12 +28,64 @@ public class Path implements Comparable<Path>{
         this.timeIncreasePerCostSaving = timeIncreasePerCostSaving;
     }
 
-    public void setToAltTransportMode(boolean b) {
-        transportMode = b ? altTransportMode : "TAXI";
+    public void setToAltTransportMode() {
+        transportMode = altTransportMode;
+    }
+
+    @Override
+    public String toString() {
+        double time = taxiTime;
+        double cost = taxiCost;
+
+        if (!transportMode.equals("TAXI")) {
+            time = altTime;
+            cost = altCost;
+        }
+
+        return from + " => " + to + ", Time: " + time + " Cost: " + cost + " Mode: " + transportMode;
+    }
+
+    @Override
+    public int compareTo(@NonNull Path comparedPath) {
+        if (this.getTimeIncreasePerCostSaving() < comparedPath.getTimeIncreasePerCostSaving()) {
+            return -1;
+        }
+
+        if (this.getTimeIncreasePerCostSaving() > comparedPath.getTimeIncreasePerCostSaving()) {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj.getClass() != this.getClass())
+            return false;
+
+        Path comparedPath = (Path) obj;
+        if (!comparedPath.getTransportMode().equals("TAXI"))
+            return false;
+
+        if (!comparedPath.getFrom().equals(this.getFrom()))
+            return false;
+
+        if (!comparedPath.getTo().equals(this.getTo()))
+            return false;
+
+        return true;
     }
 
     public String getTransportMode() {
         return transportMode;
+    }
+
+    public String getFrom() {
+        return from;
+    }
+
+    public String getTo() {
+        return to;
     }
 
     public double getTaxiTime() {
@@ -56,18 +106,5 @@ public class Path implements Comparable<Path>{
 
     public double getTimeIncreasePerCostSaving() {
         return timeIncreasePerCostSaving;
-    }
-
-    @Override
-    public int compareTo(@NonNull Path comparedPath) {
-        if (this.getTimeIncreasePerCostSaving() < comparedPath.getTimeIncreasePerCostSaving()) {
-            return -1;
-        }
-
-        if (this.getTimeIncreasePerCostSaving() > comparedPath.getTimeIncreasePerCostSaving()) {
-            return 1;
-        }
-
-        return 0;
     }
 }

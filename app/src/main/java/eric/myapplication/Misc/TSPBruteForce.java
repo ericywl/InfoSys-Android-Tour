@@ -7,8 +7,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static eric.myapplication.Database.TravelContract.TravelEntry.*;
-import static eric.myapplication.Database.TravelDBHelper.*;
+import static eric.myapplication.Database.TravelContract.TravelEntry.PT_COST;
+import static eric.myapplication.Database.TravelContract.TravelEntry.PT_TIME;
+import static eric.myapplication.Database.TravelContract.TravelEntry.TAXI_COST;
+import static eric.myapplication.Database.TravelContract.TravelEntry.TAXI_TIME;
+import static eric.myapplication.Database.TravelContract.TravelEntry.WALK_TIME;
+import static eric.myapplication.Database.TravelDBHelper.getEntry;
 
 public class TSPBruteForce {
     private String originName;
@@ -34,12 +38,34 @@ public class TSPBruteForce {
             return tempBestRoute;
         }
 
-        // replace paths
+        // Replace transport modes on paths that are the least efficient
+        List<Path> replacedPaths = tempBestRoute.getPaths();
+        List<Path> sortedPaths = new ArrayList<>(replacedPaths);
+        Collections.sort(sortedPaths);
 
+        int index = 0;
+        while (tempBestRoute.getCostWeight() > budget) {
+            Path sPath = sortedPaths.get(index);
+            if (sPath.getTimeIncreasePerCostSaving() > 0) {
+                for (Path oPath : replacedPaths)
+                    if (sPath.equals(oPath)) {
+                        oPath.setToAltTransportMode();
+
+                        double timeIncrease = sPath.getAltTime() - sPath.getTaxiTime();
+                        double costDecrease = sPath.getTaxiCost() - sPath.getAltCost();
+                        tempBestRoute.addTimeWeight(timeIncrease);
+                        tempBestRoute.reduceCostWeight(costDecrease);
+                    }
+            }
+
+            index++;
+        }
+
+        tempBestRoute.setPaths(replacedPaths);
         travelDB.setTransactionSuccessful();
         travelDB.endTransaction();
 
-        return null;
+        return tempBestRoute;
     }
 
     private void findAllRoutes(List<String> tempRoute, List<String> unvisitedAttractions) {
@@ -76,7 +102,7 @@ public class TSPBruteForce {
     private List<Path> initPaths(List<String> places) {
         List<Path> paths = new ArrayList<>();
 
-        for (int i = 0; i < places.size(); i++) {
+        for (int i = 0; i < places.size() - 1; i++) {
             String from = places.get(i);
             String to = places.get(i + 1);
 
