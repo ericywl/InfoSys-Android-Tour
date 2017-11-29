@@ -25,14 +25,9 @@ import eric.myapplication.Database.AttractionDBHelper;
 import eric.myapplication.R;
 import eric.myapplication.Misc.Attraction;
 
-import static eric.myapplication.Database.AttractionContract.AttractionEntry.AVAILABLE_TABLE_NAME;
-import static eric.myapplication.Database.AttractionContract.AttractionEntry.COL_ADDR;
-import static eric.myapplication.Database.AttractionContract.AttractionEntry.COL_IMAGE;
-import static eric.myapplication.Database.AttractionContract.AttractionEntry.COL_INFO;
-import static eric.myapplication.Database.AttractionContract.AttractionEntry.COL_LARGE_IMAGE;
-import static eric.myapplication.Database.AttractionContract.AttractionEntry.COL_NAME;
-import static eric.myapplication.Database.AttractionContract.AttractionEntry.SELECTED_TABLE_NAME;
-import static eric.myapplication.Activity.PlanActivity.*;
+import static eric.myapplication.Database.AttractionContract.AttractionEntry.*;
+import static eric.myapplication.Database.AttractionDBHelper.*;
+import static eric.myapplication.Activity.PlanActivity.availableAttractionNames;
 
 public class CustomListAdapter extends ArrayAdapter {
     private Activity context;
@@ -103,11 +98,11 @@ public class CustomListAdapter extends ArrayAdapter {
 
                         // Remove from list of selected attractions
                         selectedList.remove(attr);
-                        removeFromTable(SELECTED_TABLE_NAME, attrName);
+                        removeFromTable(attractionDB ,SELECTED_TABLE_NAME, attrName);
 
                         // Add to list of available attractions
                         availableAttractionNames.add(attrName);
-                        addToTable(AVAILABLE_TABLE_NAME, attr);
+                        addToTable(attractionDB ,AVAILABLE_TABLE_NAME, attr);
 
                         Collections.sort(availableAttractionNames);
                         attractionDB.setTransactionSuccessful();
@@ -124,25 +119,5 @@ public class CustomListAdapter extends ArrayAdapter {
         });
 
         return view;
-    }
-
-    // Add attraction to the database table
-    private void addToTable(String tableName, Attraction attr) {
-        ContentValues values = new ContentValues();
-        values.put(COL_NAME, attr.getName());
-        values.put(COL_ADDR, attr.getAddress());
-        values.put(COL_IMAGE, attr.getImage());
-        values.put(COL_INFO, attr.getDescription());
-        values.put(COL_LARGE_IMAGE, attr.getLargeImage());
-
-        long id = attractionDB.insert(tableName, null, values);
-        Log.i("eric1", "" + id);
-    }
-
-    // Remove attraction with the respective name from the database table
-    private void removeFromTable(String tableName, String attrName) {
-        String selection = COL_NAME + "=?";
-        String[] selectionArgs = {attrName};
-        attractionDB.delete(tableName, selection, selectionArgs);
     }
 }

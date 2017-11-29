@@ -6,6 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import java.util.List;
+
 import eric.myapplication.Database.TravelDBHelper;
 import eric.myapplication.R;
 
@@ -24,17 +26,18 @@ public class TravelActivity extends AppCompatActivity {
 
         TravelDBHelper travelDBHelper = new TravelDBHelper(this);
         travelDB = travelDBHelper.getReadableDatabase();
-        dbtext.setText(String.valueOf(getMBSTime(TAXI_TIME, FOO_HAI)));
+
+
     }
 
-    public double getMBSTime(String tableName, String place) {
+    private double getEntry(String tableName, String from, String to) {
         String whereClause = ORIGIN + "=?";
-        String[] whereArgs = {MBS};
+        String[] whereArgs = {from};
         Cursor cursor = travelDB.query(tableName, null, whereClause, whereArgs,
                 null, null, null);
 
         double output = 0;
-        int placeIndex = cursor.getColumnIndex(place);
+        int placeIndex = cursor.getColumnIndex(to);
 
         while (cursor.moveToNext()) {
             output = cursor.getInt(placeIndex);
