@@ -19,20 +19,28 @@ public class TSPBruteForce {
         this.travelDB = sqLiteDatabase;
     }
 
-    public Route findBestRoute(String originName, List<String> placesToVisit) {
+    public Route findBestRoute(String originName, List<String> placesToVisit, int budget) {
         List<String> tempRoute = new ArrayList<>();
         this.originName = originName;
         tempRoute.add(originName);
 
         findAllRoutes(tempRoute, placesToVisit);
         Collections.sort(allRoutes);
-        return allRoutes.get(0);
+
+        for (Route route : allRoutes) {
+            if (route.getCostWeight() <= budget)
+                return route;
+        }
+
+        return null;
     }
 
     private void findAllRoutes(List<String> tempRoute, List<String> unvisitedAttractions) {
         if (unvisitedAttractions.isEmpty()) {
             tempRoute.add(originName);
-            allRoutes.add(new Route(tempRoute, routeWeight(tempRoute)));
+            int timeWeight = routeWeight(TAXI_TIME, tempRoute);
+            int costWeight = routeWeight(TAXI_COST, tempRoute);
+            allRoutes.add(new Route(tempRoute, timeWeight, costWeight));
             return;
         }
 
@@ -45,12 +53,12 @@ public class TSPBruteForce {
         }
     }
 
-    private int routeWeight(List<String> route) {
+    private int routeWeight(String tableName, List<String> route) {
         int routeWeight = 0;
         for (int i = 0; i < route.size() - 1; i++) {
             String from = route.get(i);
             String to = route.get(i + 1);
-            routeWeight += getEntry(travelDB, TAXI_TIME, from, to);
+            routeWeight += getEntry(travelDB, tableName, from, to);
         }
 
         return routeWeight;

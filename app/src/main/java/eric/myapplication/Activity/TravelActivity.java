@@ -39,8 +39,12 @@ public class TravelActivity extends AppCompatActivity {
         ));
 
         TSPBruteForce tspBruteForce = new TSPBruteForce(travelDB);
-        Route bestRoute = tspBruteForce.findBestRoute(MBS, placesToVisit);
+        Route bestRoute = tspBruteForce.findBestRoute(MBS, placesToVisit, 20);
 
-        dbtext.setText(bestRoute.toString());
+        if (bestRoute == null) {
+            dbtext.setText("No route with that budget.");
+        } else {
+            dbtext.setText(bestRoute.toString());
+        }
     }
 }
