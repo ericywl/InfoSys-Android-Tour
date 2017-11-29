@@ -115,7 +115,7 @@ public class TravelDBHelper extends SQLiteOpenHelper {
         int placeIndex = cursor.getColumnIndex(to);
 
         while (cursor.moveToNext()) {
-            output = cursor.getInt(placeIndex);
+            output = cursor.getDouble(placeIndex);
             cursor.close();
         }
 

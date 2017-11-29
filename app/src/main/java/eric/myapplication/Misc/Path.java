@@ -8,17 +8,23 @@ public class Path implements Comparable<Path>{
     private String to;
     private String transportMode;
     private String altTransportMode;
-    private boolean setToAltTransportMode;
+    private boolean setToAltTransportMode = false;
+
+    private double taxiTime;
+    private double taxiCost;
     private double altTime;
     private double altCost;
     private double timeIncreasePerCostSaving;
 
-    public Path(String from, String to, double altTime, double altCost,
+    public Path(String from, String to, double taxiTime, double taxiCost ,double altTime, double altCost,
                 String altTransportMode, double timeIncreasePerCostSaving) {
         this.from = from;
         this.to = to;
         this.transportMode = "TAXI";
         this.altTransportMode = altTransportMode;
+
+        this.taxiTime = taxiTime;
+        this.taxiCost = taxiCost;
         this.altTime = altTime;
         this.altCost = altCost;
         this.timeIncreasePerCostSaving = timeIncreasePerCostSaving;
@@ -30,6 +36,14 @@ public class Path implements Comparable<Path>{
 
     public String getTransportMode() {
         return transportMode;
+    }
+
+    public double getTaxiTime() {
+        return taxiTime;
+    }
+
+    public double getTaxiCost() {
+        return taxiCost;
     }
 
     public double getAltTime() {
@@ -45,7 +59,15 @@ public class Path implements Comparable<Path>{
     }
 
     @Override
-    public int compareTo(@NonNull Path path) {
+    public int compareTo(@NonNull Path comparedPath) {
+        if (this.getTimeIncreasePerCostSaving() < comparedPath.getTimeIncreasePerCostSaving()) {
+            return -1;
+        }
+
+        if (this.getTimeIncreasePerCostSaving() > comparedPath.getTimeIncreasePerCostSaving()) {
+            return 1;
+        }
+
         return 0;
     }
 }

@@ -3,6 +3,7 @@ package eric.myapplication.Activity;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class TravelActivity extends AppCompatActivity {
 
         TextView dbtext = findViewById(R.id.dbtext);
 
+        Log.i("eric1", "db");
         TravelDBHelper travelDBHelper = new TravelDBHelper(this);
         SQLiteDatabase travelDB = travelDBHelper.getReadableDatabase();
         attrNameList = getAttractionNameList(travelDB, TAXI_TIME);
@@ -38,13 +40,10 @@ public class TravelActivity extends AppCompatActivity {
                 BURMESE
         ));
 
+        Log.i("eric1", "bruteforce");
         TSPBruteForce tspBruteForce = new TSPBruteForce(travelDB);
         Route bestRoute = tspBruteForce.findBestRoute(MBS, placesToVisit, 50);
 
-        if (bestRoute == null) {
-            dbtext.setText("No route with that budget.");
-        } else {
-            dbtext.setText(bestRoute.toString());
-        }
+        dbtext.setText(bestRoute.toString());
     }
 }

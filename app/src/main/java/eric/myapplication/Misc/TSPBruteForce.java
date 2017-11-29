@@ -20,37 +20,72 @@ public class TSPBruteForce {
     }
 
     public Route findBestRoute(String originName, List<String> placesToVisit, int budget) {
-        Route tempRoute = new Route();
+        List<String> tempRoute = new ArrayList<>();
         this.originName = originName;
-        tempRoute.addPlace(originName, 0, 0);
+        tempRoute.add(originName);
 
         travelDB.beginTransaction();
         findAllRoutes(tempRoute, placesToVisit);
 
         Collections.sort(allRoutes);
+        Route tempBestRoute = allRoutes.get(0);
+        tempBestRoute.setPaths(initPaths(tempBestRoute.getPlaces()));
+        if (tempBestRoute.getCostWeight() <= budget) {
+            return tempBestRoute;
+        }
+
+        // replace paths
+
         travelDB.setTransactionSuccessful();
         travelDB.endTransaction();
 
-        return allRoutes.get(0);
+        return null;
     }
 
-    private void findAllRoutes(Route tempRoute, List<String> unvisitedAttractions) {
+    private void findAllRoutes(List<String> tempRoute, List<String> unvisitedAttractions) {
         if (unvisitedAttractions.isEmpty()) {
-            allRoutes.add(tempRoute);
+            tempRoute.add(originName);
+            double totalTime = routeWeight(TAXI_TIME, tempRoute);
+            double totalCost = routeWeight(TAXI_COST, tempRoute);
+            Route route = new Route(tempRoute, totalTime, totalCost);
+            allRoutes.add(route);
             return;
         }
 
         for (String attrName : unvisitedAttractions) {
-            Route newRoute = tempRoute.clone();
+            List<String> newRoute = new ArrayList<>(tempRoute);
             List<String> newUnvisitedAttractions = new ArrayList<>(unvisitedAttractions);
-            String from = newRoute.getLast();
+
+            newRoute.add(attrName);
+            newUnvisitedAttractions.remove(attrName);
+            findAllRoutes(newRoute, newUnvisitedAttractions);
+        }
+    }
+
+    private double routeWeight(String tableName, List<String> route) {
+        double routeWeight = 0;
+        for (int i = 0; i < route.size() - 1; i++) {
+            String from = route.get(i);
+            String to = route.get(i + 1);
+            routeWeight += getEntry(travelDB, tableName, from, to);
+        }
+
+        return routeWeight;
+    }
+
+    private List<Path> initPaths(List<String> places) {
+        List<Path> paths = new ArrayList<>();
+
+        for (int i = 0; i < places.size(); i++) {
+            String from = places.get(i);
+            String to = places.get(i + 1);
 
             // Get time and cost for all transport modes
-            double taxiTime = getEntry(travelDB, TAXI_TIME, from, attrName);
-            double taxiCost = getEntry(travelDB, TAXI_COST, from, attrName);
-            double busTime = getEntry(travelDB, PT_TIME, from, attrName);
-            double busCost = getEntry(travelDB, PT_COST, from, attrName);
-            double walkTime = getEntry(travelDB, WALK_TIME, from, attrName);
+            double taxiTime = getEntry(travelDB, TAXI_TIME, from, to);
+            double taxiCost = getEntry(travelDB, TAXI_COST, from, to);
+            double busTime = getEntry(travelDB, PT_TIME, from, to);
+            double busCost = getEntry(travelDB, PT_COST, from, to);
+            double walkTime = getEntry(travelDB, WALK_TIME, from, to);
 
             double busTimeCost = (busTime - taxiTime) / (taxiCost - busCost);
             double walkTimeCost = (walkTime - taxiTime) / taxiCost;
@@ -68,27 +103,13 @@ public class TSPBruteForce {
                 timeIncreasePerCostSaving = walkTimeCost;
             }
 
-            // Add path to route
-            Path path = new Path(from, attrName, altTime, altCost, altTransportMode,
-                    timeIncreasePerCostSaving);
-
-            newRoute.addPlace(attrName, taxiTime, taxiCost);
-            newRoute.addPath(path);
-            newUnvisitedAttractions.remove(attrName);
-            findAllRoutes(newRoute, newUnvisitedAttractions);
-        }
-    }
-
-    /*
-    private int routeWeight(String tableName, List<String> route) {
-        int routeWeight = 0;
-        for (int i = 0; i < route.size() - 1; i++) {
-            String from = route.get(i);
-            String to = route.get(i + 1);
-            routeWeight += getEntry(travelDB, tableName, from, to);
+            // Add path to list of paths
+            Path path = new Path(from, to, taxiTime, taxiCost, altTime, altCost,
+                    altTransportMode, timeIncreasePerCostSaving);
+            paths.add(path);
         }
 
-        return routeWeight;
+        return paths;
     }
-    */
+
 }

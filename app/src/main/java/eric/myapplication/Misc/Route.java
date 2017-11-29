@@ -3,40 +3,18 @@ package eric.myapplication.Misc;
 
 import android.support.annotation.NonNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Route implements Comparable<Route> {
-    private List<Path> paths = new ArrayList<>();
-    private List<String> places = new ArrayList<>();
-    private int size = 0;
-    private double timeWeight = 0;
-    private double costWeight = 0;
+    private List<String> places;
+    private List<Path> paths;
+    private double timeWeight;
+    private double costWeight;
 
-    public void addPlace(String place, double time, double cost) {
-        places.add(place);
-        size++;
-
-        timeWeight += time;
-        costWeight += cost;
-    }
-
-    public void addPath(Path path) {
-        paths.add(path);
-    }
-
-    @Override
-    public Route clone() {
-        Route routeClone;
-
-        try {
-            routeClone = (Route) super.clone();
-        } catch (CloneNotSupportedException ex) {
-            ex.printStackTrace();
-            routeClone = new Route();
-        }
-
-        return routeClone;
+    public Route(List<String> places, double totalTime, double totalCost) {
+        this.places = places;
+        this.timeWeight = totalTime;
+        this.costWeight = totalCost;
     }
 
     @Override
@@ -62,12 +40,8 @@ public class Route implements Comparable<Route> {
         return places;
     }
 
-    public List<Path> getPaths() {
-        return paths;
-    }
-
-    public String getLast() {
-        return places.get(size - 1);
+    public void setPaths(List<Path> paths) {
+        this.paths = paths;
     }
 
     public double getTimeWeight() {
