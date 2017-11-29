@@ -37,14 +37,20 @@ import java.util.Locale;
 
 import eric.myapplication.Database.TravelDBHelper;
 import eric.myapplication.Misc.TSPFastSolver;
+import eric.myapplication.Misc.TSPPath;
+import eric.myapplication.Misc.TSPRoute;
 import eric.myapplication.R;
+
+import static eric.myapplication.Database.TravelContract.TravelEntry.MBS;
 
 public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCallback, DirectionCallback {
     private GoogleMap mMap;
-    private ArrayList<String> selectedAttrNames;
+    private TSPRoute bestRoute;
     // Origin set to Marina Bay Sands
-    private LatLng originLatLng = new LatLng(1.2845442, 103.8595898);
     private List<LatLng> waypoints = new ArrayList<>();
+    private ArrayList<String> selectedAttrNames;
+    private List<String> selectedAttrDBNames = new ArrayList<>();
+    private LatLng originLatLng = new LatLng(1.2845442, 103.8595898);
 
     private static final String serverKey = "AIzaSyCZaK53Pgt6k_ShHb2b7UeH-69aZ8Uf19Q";
     private static final float zoomLevel = 15;
@@ -63,11 +69,21 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
         Intent intent = getIntent();
         selectedAttrNames = (ArrayList<String>)
                 intent.getBundleExtra("LIST").getSerializable("SELECTED");
+
+        if (selectedAttrNames != null) {
+            for (String attrName : selectedAttrNames) {
+                selectedAttrDBNames.add(attrName.replace("'", "").replace(" ", "_"));
+            }
+        }
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        // Add azure marker to Marina Bay Sands first
+        mMap.addMarker(new MarkerOptions().position(originLatLng).title("Marina Bay Sands"))
+                .setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+
         List<Address> addressList;
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
 
@@ -87,12 +103,28 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
             Log.i("eric1", "Error occured: " + ex.toString() + ".");
         }
 
+        if (selectedAttrNames.isEmpty()) {
+            double latitude = originLatLng.latitude;
+            double longitude = originLatLng.longitude;
+            double constant = 0.005;
+
+            LatLng southwest = new LatLng(latitude - constant, longitude - constant);
+            LatLng northeast = new LatLng(latitude + constant, longitude + constant);
+            LatLngBounds bounds = new LatLngBounds(southwest, northeast);
+            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+
+            Snackbar.make(findViewById(android.R.id.content), "Empty list.",
+                    Snackbar.LENGTH_LONG).show();
+            return;
+        }
+
         TravelDBHelper travelDBHelper = new TravelDBHelper(this);
         TSPFastSolver tspSolver = new TSPFastSolver(travelDBHelper.getReadableDatabase());
-        getDirections();
+        bestRoute = tspSolver.findBestRoute(MBS, selectedAttrDBNames, 20);
+        getDirections(bestRoute.getPaths());
     }
 
-    private void getDirections() {
+    private void getDirections(List<TSPPath> paths) {
         Snackbar.make(findViewById(android.R.id.content), "Getting Directions...",
                 Snackbar.LENGTH_LONG).show();
         GoogleDirectionConfiguration.getInstance().setLogEnabled(true);
@@ -111,36 +143,34 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
                 .execute(this);
         */
 
+        TSPPath path = paths.get(0);
+        String mode = determineMode(path.getTransportMode());
+        Log.i("eric1", path.toString());
+
         GoogleDirection.withServerKey(serverKey)
                 .from(originLatLng)
                 .to(waypoints.get(0))
-                .transportMode(TransportMode.TRANSIT)
+                .transportMode(mode)
                 .transitMode(TransitMode.BUS)
                 .execute(this);
 
-        for (int i = 1; i < waypoints.size(); i++) {
+        for (int i = 0; i < waypoints.size() - 1; i++) {
+            path = paths.get(i + 1);
+            mode = determineMode(path.getTransportMode());
+            Log.i("eric1", path.toString());
+
             GoogleDirection.withServerKey(serverKey)
-                    .from(waypoints.get(i-1))
-                    .to(waypoints.get(i))
+                    .from(waypoints.get(i))
+                    .to(waypoints.get(i + 1))
                     .transportMode(TransportMode.TRANSIT)
                     .transitMode(TransitMode.BUS)
                     .execute(this);
         }
-
-        GoogleDirection.withServerKey(serverKey)
-                .from(waypoints.get(waypoints.size() - 1))
-                .to(originLatLng)
-                .transportMode(TransportMode.TRANSIT)
-                .transitMode(TransitMode.BUS)
-                .execute(this);
     }
 
     @Override
     public void onDirectionSuccess(Direction direction, String rawBody) {
         Log.i("eric1", "DirectionSuccess.");
-        // Add azure marker to Marina Bay Sands first
-        mMap.addMarker(new MarkerOptions().position(originLatLng).title("Marina Bay Sands"))
-                .setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
 
         if (direction.isOK()) {
             Log.i("eric1", "DirectionOK.");
@@ -168,14 +198,6 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
                 }
             }
 
-            if (waypoints.isEmpty()) {
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(originLatLng));
-                mMap.moveCamera(CameraUpdateFactory.zoomTo(zoomLevel));
-                Snackbar.make(findViewById(android.R.id.content), "No waypoints added.",
-                        Snackbar.LENGTH_INDEFINITE).show();
-                return;
-            }
-
             setCameraWithCoordinationBounds(route);
 
         } else {
@@ -199,5 +221,17 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
         LatLng northeast = route.getBound().getNortheastCoordination().getCoordination();
         LatLngBounds bounds = new LatLngBounds(southwest, northeast);
         mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+    }
+
+    private String determineMode(String transportMode) {
+        String mode = TransportMode.DRIVING;
+
+        if (transportMode.equals("BUS")) {
+            mode = TransportMode.TRANSIT;
+        } else if (transportMode.equals("WALK")) {
+            mode = TransportMode.WALKING;
+        }
+
+        return mode;
     }
 }

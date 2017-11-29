@@ -7,7 +7,7 @@ import java.util.List;
 
 public class TSPRoute implements Comparable<TSPRoute> {
     private List<String> places;
-    private List<TSPPath> TSPPaths;
+    private List<TSPPath> paths;
     private double timeWeight;
     private double costWeight;
 
@@ -46,8 +46,8 @@ public class TSPRoute implements Comparable<TSPRoute> {
     public String toString() {
         StringBuilder outputBld = new StringBuilder();
 
-        for (TSPPath TSPPath : TSPPaths) {
-            outputBld.append(TSPPath.toString());
+        for (TSPPath path : paths) {
+            outputBld.append(path.toString());
             outputBld.append("\n");
         }
 
@@ -64,11 +64,11 @@ public class TSPRoute implements Comparable<TSPRoute> {
     }
 
     public List<TSPPath> getPaths() {
-        return TSPPaths;
+        return paths;
     }
 
     public void setPaths(List<TSPPath> TSPPaths) {
-        this.TSPPaths = TSPPaths;
+        this.paths = TSPPaths;
     }
 
     public double getTimeWeight() {

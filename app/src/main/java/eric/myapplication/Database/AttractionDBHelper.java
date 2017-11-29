@@ -16,11 +16,19 @@ import static eric.myapplication.Database.AttractionData.*;
 import static eric.myapplication.Database.AttractionContract.AttractionEntry.*;
 
 public class AttractionDBHelper extends SQLiteOpenHelper {
+    private static AttractionDBHelper mInstance = null;
     private static final String DB_NAME = "AttractionDB";
     private static final int DB_VER = 1;
 
     public AttractionDBHelper(Context context) {
         super(context, DB_NAME, null, DB_VER);
+    }
+
+    public static AttractionDBHelper getInstance(Context ctx) {
+        if (mInstance == null) {
+            mInstance = new AttractionDBHelper(ctx.getApplicationContext());
+        }
+        return mInstance;
     }
 
     @Override

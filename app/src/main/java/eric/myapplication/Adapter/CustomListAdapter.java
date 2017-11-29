@@ -25,19 +25,22 @@ import eric.myapplication.Misc.Attraction;
 
 import static eric.myapplication.Database.AttractionContract.AttractionEntry.*;
 import static eric.myapplication.Database.AttractionDBHelper.*;
-import static eric.myapplication.Activity.PlanActivity.availableAttractionNames;
 
 public class CustomListAdapter extends ArrayAdapter {
     private Activity context;
     private ArrayList<Attraction> selectedList;
+    private ArrayList<String> availableList;
     private SQLiteDatabase attractionDB;
 
     @SuppressWarnings("unchecked")
-    public CustomListAdapter(Activity context, ArrayList<Attraction> selectedListParam) {
+    public CustomListAdapter(Activity context, ArrayList<Attraction> selectedListParam,
+                             ArrayList<String> availableListParam) {
+
         super(context, R.layout.listview_row, selectedListParam);
 
         this.context = context;
         this.selectedList = selectedListParam;
+        this.availableList = availableListParam;
     }
 
     private class ViewHolder {
@@ -99,10 +102,10 @@ public class CustomListAdapter extends ArrayAdapter {
                         removeFromTable(attractionDB ,SELECTED_TABLE_NAME, attrName);
 
                         // Add to list of available attractions
-                        availableAttractionNames.add(attrName);
+                        availableList.add(attrName);
                         addToTable(attractionDB ,AVAILABLE_TABLE_NAME, attr);
 
-                        Collections.sort(availableAttractionNames);
+                        Collections.sort(availableList);
                         attractionDB.setTransactionSuccessful();
                         attractionDB.endTransaction();
                         notifyDataSetChanged();
@@ -117,5 +120,9 @@ public class CustomListAdapter extends ArrayAdapter {
         });
 
         return view;
+    }
+
+    public void updateAvailableList(ArrayList<String> list) {
+        list = availableList;
     }
 }

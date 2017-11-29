@@ -39,7 +39,7 @@ public class PlanActivity extends AppCompatActivity {
     private SQLiteDatabase attractionDB;
     private CustomListAdapter adapter;
 
-    public static ArrayList<String> availableAttractionNames;
+    private ArrayList<String> availableAttractionNames;
     private ArrayList<Attraction> selectedAttractions;
     private SpinnerDialog spinnerDialog;
 
@@ -48,13 +48,13 @@ public class PlanActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_plan);
 
-        AttractionDBHelper attractionDBHelper = new AttractionDBHelper(this);
+        AttractionDBHelper attractionDBHelper = AttractionDBHelper.getInstance(this);
         attractionDB = attractionDBHelper.getWritableDatabase();
         selectedAttractions = getAttractionList(attractionDB ,SELECTED_TABLE_NAME);
         availableAttractionNames = getAttractionNameList(attractionDB,
                 AVAILABLE_TABLE_NAME);
 
-        adapter = new CustomListAdapter(this, selectedAttractions);
+        adapter = new CustomListAdapter(this, selectedAttractions, availableAttractionNames);
         final ListView attrListView = findViewById(R.id.list_view);
         TextView emptyView = findViewById(R.id.empty_list);
 
@@ -80,6 +80,7 @@ public class PlanActivity extends AppCompatActivity {
 
     // Show list of available attractions to choose from
     public void addAttrOnClick(View view) {
+        adapter.updateAvailableList(availableAttractionNames);
         spinnerDialog.showSpinerDialog();
     }
 
@@ -94,6 +95,7 @@ public class PlanActivity extends AppCompatActivity {
 
         bundle.putSerializable(SELECTED_KEY, selectedAttrNames);
         intent.putExtra(LIST_KEY, bundle);
+        attractionDB.close();
         startActivity(intent);
     }
 

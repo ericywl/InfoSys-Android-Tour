@@ -7,17 +7,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static eric.myapplication.Database.TravelContract.TravelEntry.PT_COST;
-import static eric.myapplication.Database.TravelContract.TravelEntry.PT_TIME;
-import static eric.myapplication.Database.TravelContract.TravelEntry.TAXI_COST;
-import static eric.myapplication.Database.TravelContract.TravelEntry.TAXI_TIME;
-import static eric.myapplication.Database.TravelContract.TravelEntry.WALK_TIME;
+import static eric.myapplication.Database.TravelContract.TravelEntry.*;
 import static eric.myapplication.Database.TravelDBHelper.getEntry;
 
 public class TSPFastSolver {
     private String originName;
     private SQLiteDatabase travelDB;
-    private List<TSPRoute> allTSPRoutes = new ArrayList<>();
+    private TSPRoute bestApproxRoute;
 
     public TSPFastSolver(SQLiteDatabase sqLiteDatabase) {
         this.travelDB = sqLiteDatabase;
@@ -29,53 +25,52 @@ public class TSPFastSolver {
         tempRoute.add(originName);
 
         travelDB.beginTransaction();
-        findAllRoutes(tempRoute, placesToVisit);
+        findOneRoute(tempRoute, placesToVisit);
 
-        Collections.sort(allTSPRoutes);
-        TSPRoute bestTSPRoute = allTSPRoutes.get(0);
-        bestTSPRoute.setPaths(initPaths(bestTSPRoute.getPlaces()));
-        if (bestTSPRoute.getCostWeight() <= budget) {
-            return bestTSPRoute;
+        bestApproxRoute.setPaths(initPaths(bestApproxRoute.getPlaces()));
+        if (bestApproxRoute.getCostWeight() <= budget) {
+            return bestApproxRoute;
         }
 
         // Best route with all TAXI did not meet the budget
         // Replace transport modes on paths that are the least efficient
-        List<TSPPath> replacedTSPPaths = bestTSPRoute.getPaths();
-        List<TSPPath> sortedTSPPaths = new ArrayList<>(replacedTSPPaths);
+        List<TSPPath> replacedPaths = bestApproxRoute.getPaths();
+        List<TSPPath> sortedTSPPaths = new ArrayList<>(replacedPaths);
         Collections.sort(sortedTSPPaths);
 
         int index = 0;
-        while (bestTSPRoute.getCostWeight() > budget) {
+        while (bestApproxRoute.getCostWeight() > budget) {
             TSPPath sTSPPath = sortedTSPPaths.get(index);
             if (sTSPPath.getTimeIncreasePerCostSaving() > 0) {
-                for (TSPPath oTSPPath : replacedTSPPaths)
+                for (TSPPath oTSPPath : replacedPaths)
                     if (sTSPPath.equals(oTSPPath)) {
                         oTSPPath.setToAltTransportMode();
 
                         double timeIncrease = sTSPPath.getAltTime() - sTSPPath.getTaxiTime();
                         double costDecrease = sTSPPath.getTaxiCost() - sTSPPath.getAltCost();
-                        bestTSPRoute.addTimeWeight(timeIncrease);
-                        bestTSPRoute.reduceCostWeight(costDecrease);
+                        bestApproxRoute.addTimeWeight(timeIncrease);
+                        bestApproxRoute.reduceCostWeight(costDecrease);
                     }
             }
 
             index++;
         }
 
-        bestTSPRoute.setPaths(replacedTSPPaths);
+        bestApproxRoute.setPaths(replacedPaths);
         travelDB.setTransactionSuccessful();
         travelDB.endTransaction();
+        travelDB.close();
 
-        return bestTSPRoute;
+        return bestApproxRoute;
     }
 
-    private void findAllRoutes(List<String> tempRoute, List<String> unvisitedAttractions) {
+    // Find route approximation using Nearest Neighbor heuristic
+    private void findOneRoute(List<String> tempRoute, List<String> unvisitedAttractions) {
         if (unvisitedAttractions.isEmpty()) {
             tempRoute.add(originName);
             double totalTime = routeWeight(TAXI_TIME, tempRoute);
             double totalCost = routeWeight(TAXI_COST, tempRoute);
-            TSPRoute TSPRoute = new TSPRoute(tempRoute, totalTime, totalCost);
-            allTSPRoutes.add(TSPRoute);
+            bestApproxRoute = new TSPRoute(tempRoute, totalTime, totalCost);
             return;
         }
 
@@ -98,9 +93,10 @@ public class TSPFastSolver {
 
         tempRoute.add(nearestAttr);
         unvisitedAttractions.remove(nearestAttr);
-        findAllRoutes(tempRoute, unvisitedAttractions);
+        findOneRoute(tempRoute, unvisitedAttractions);
     }
 
+    // Calculate total weight of route
     private double routeWeight(String tableName, List<String> route) {
         double routeWeight = 0;
         for (int i = 0; i < route.size() - 1; i++) {
@@ -142,10 +138,10 @@ public class TSPFastSolver {
                 timeIncreasePerCostSaving = walkTimeCost;
             }
 
-            // Add TSPPath to list of TSPPaths
-            TSPPath TSPPath = new TSPPath(from, to, taxiTime, taxiCost, altTime, altCost,
+            // Add path to list of paths
+            TSPPath path = new TSPPath(from, to, taxiTime, taxiCost, altTime, altCost,
                     altTransportMode, timeIncreasePerCostSaving);
-            TSPPaths.add(TSPPath);
+            TSPPaths.add(path);
         }
 
         return TSPPaths;
