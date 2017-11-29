@@ -19,7 +19,7 @@ public class TSPBruteForce {
         this.travelDB = sqLiteDatabase;
     }
 
-    public TSPRoute findBestRoute(String originName, List<String> placesToVisit, int budget) {
+    public TSPRoute findBestRoute(String originName, List<String> placesToVisit, double budget) {
         List<String> tempRoute = new ArrayList<>();
         this.originName = originName;
         tempRoute.add(originName);
@@ -42,7 +42,7 @@ public class TSPBruteForce {
         int index = 0;
         while (tempBestTSPRoute.getCostWeight() > budget) {
             TSPPath sTSPPath = sortedTSPPaths.get(index);
-            if (sTSPPath.getTimeIncreasePerCostSaving() > 0) {
+            if (sTSPPath.getTimeIncreasePerCostSaving() > -2) {
                 for (TSPPath oTSPPath : replacedTSPPaths)
                     if (sTSPPath.equals(oTSPPath)) {
                         oTSPPath.setToAltTransportMode();
@@ -112,7 +112,7 @@ public class TSPBruteForce {
             double busTimeCost = (busTime - taxiTime) / (taxiCost - busCost);
             double walkTimeCost = (walkTime - taxiTime) / taxiCost;
 
-            String altTransportMode = "BUS";
+            String altTransportMode = "PT";
             double altTime = busTime;
             double altCost = busCost;
             double timeIncreasePerCostSaving = busTimeCost;

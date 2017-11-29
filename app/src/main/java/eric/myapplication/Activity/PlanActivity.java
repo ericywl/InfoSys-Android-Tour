@@ -1,16 +1,22 @@
 package eric.myapplication.Activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
-import android.support.v4.app.NavUtils;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,15 +25,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
-import eric.myapplication.Database.AttractionDBHelper;
-import eric.myapplication.R;
-import eric.myapplication.Misc.Attraction;
 import eric.myapplication.Adapter.CustomListAdapter;
+import eric.myapplication.Database.AttractionDBHelper;
+import eric.myapplication.Misc.Attraction;
+import eric.myapplication.R;
 import in.galaxyofandroid.spinerdialog.OnSpinerItemClick;
 import in.galaxyofandroid.spinerdialog.SpinnerDialog;
 
-import static eric.myapplication.Database.AttractionDBHelper.*;
-import static eric.myapplication.Database.AttractionContract.AttractionEntry.*;
+import static eric.myapplication.Database.AttractionContract.AttractionEntry.AVAILABLE_TABLE_NAME;
+import static eric.myapplication.Database.AttractionContract.AttractionEntry.SELECTED_TABLE_NAME;
+import static eric.myapplication.Database.AttractionDBHelper.addToTable;
+import static eric.myapplication.Database.AttractionDBHelper.getAttraction;
+import static eric.myapplication.Database.AttractionDBHelper.getAttractionList;
+import static eric.myapplication.Database.AttractionDBHelper.getAttractionNameList;
+import static eric.myapplication.Database.AttractionDBHelper.removeFromTable;
 
 public class PlanActivity extends AppCompatActivity {
     public static final String SELECTED_KEY = "SELECTED";
@@ -35,6 +46,7 @@ public class PlanActivity extends AppCompatActivity {
     public static final String INFO_KEY = "INFO";
     public static final String IMAGE_KEY = "IMAGE";
     public static final String NAME_KEY = "NAME";
+    public static final String BUDGET_KEY = "BUDGET";
 
     private SQLiteDatabase attractionDB;
     private CustomListAdapter adapter;
@@ -50,7 +62,7 @@ public class PlanActivity extends AppCompatActivity {
 
         AttractionDBHelper attractionDBHelper = AttractionDBHelper.getInstance(this);
         attractionDB = attractionDBHelper.getWritableDatabase();
-        selectedAttractions = getAttractionList(attractionDB ,SELECTED_TABLE_NAME);
+        selectedAttractions = getAttractionList(attractionDB, SELECTED_TABLE_NAME);
         availableAttractionNames = getAttractionNameList(attractionDB,
                 AVAILABLE_TABLE_NAME);
 
@@ -86,17 +98,32 @@ public class PlanActivity extends AppCompatActivity {
 
     // Proceed to next activity
     public void doneOnClick(View view) {
-        Intent intent = new Intent(view.getContext(), PlanMapsActivity.class);
-        Bundle bundle = new Bundle();
-        ArrayList<String> selectedAttrNames = new ArrayList<>();
+        final Intent intent = new Intent(view.getContext(), PlanMapsActivity.class);
+        final Bundle bundle = new Bundle();
+        final ArrayList<String> selectedAttrNames = new ArrayList<>();
         for (Attraction attr : selectedAttractions) {
             selectedAttrNames.add(attr.getName());
         }
 
-        bundle.putSerializable(SELECTED_KEY, selectedAttrNames);
-        intent.putExtra(LIST_KEY, bundle);
-        attractionDB.close();
-        startActivity(intent);
+        AlertDialog.Builder adb = new AlertDialog.Builder(this);
+        adb.setTitle("Budget");
+        adb.setMessage("Key in your budget.");
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        adb.setView(input);
+        adb.setNegativeButton("Cancel", null);
+        adb.setPositiveButton("Enter", new AlertDialog.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                bundle.putSerializable(SELECTED_KEY, selectedAttrNames);
+                intent.putExtra(LIST_KEY, bundle);
+                intent.putExtra(BUDGET_KEY, input.getText().toString());
+                attractionDB.close();
+                startActivity(intent);
+            }
+        });
+
+        adb.show();
     }
 
     @Override
@@ -119,13 +146,13 @@ public class PlanActivity extends AppCompatActivity {
                     String attrName = iter.next();
 
                     // Add to list of selected attractions
-                    Attraction attr = getAttraction(attractionDB ,AVAILABLE_TABLE_NAME, attrName);
+                    Attraction attr = getAttraction(attractionDB, AVAILABLE_TABLE_NAME, attrName);
                     selectedAttractions.add(attr);
                     addToTable(attractionDB, SELECTED_TABLE_NAME, attr);
 
                     // Remove from list of selected attractions
                     iter.remove();
-                    removeFromTable(attractionDB ,AVAILABLE_TABLE_NAME, attrName);
+                    removeFromTable(attractionDB, AVAILABLE_TABLE_NAME, attrName);
                 }
 
                 attractionDB.setTransactionSuccessful();
@@ -182,7 +209,7 @@ public class PlanActivity extends AppCompatActivity {
         spinnerDialog.bindOnSpinerListener(new OnSpinerItemClick() {
             @Override
             public void onClick(String item, int position) {
-                Attraction attr = getAttraction(attractionDB ,AVAILABLE_TABLE_NAME, item);
+                Attraction attr = getAttraction(attractionDB, AVAILABLE_TABLE_NAME, item);
                 if (attr == null) {
                     Toast.makeText(PlanActivity.this, "WHY IS IT HERE?", Toast.LENGTH_SHORT).show();
                     return;
@@ -192,11 +219,11 @@ public class PlanActivity extends AppCompatActivity {
 
                 // Add to list of selected attractions
                 selectedAttractions.add(attr);
-                addToTable(attractionDB ,SELECTED_TABLE_NAME, attr);
+                addToTable(attractionDB, SELECTED_TABLE_NAME, attr);
 
                 // Remove from list of available attractions
                 availableAttractionNames.remove(position);
-                removeFromTable(attractionDB ,AVAILABLE_TABLE_NAME, item);
+                removeFromTable(attractionDB, AVAILABLE_TABLE_NAME, item);
 
                 attractionDB.setTransactionSuccessful();
                 attractionDB.endTransaction();

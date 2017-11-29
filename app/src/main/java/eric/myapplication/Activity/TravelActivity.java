@@ -33,12 +33,9 @@ public class TravelActivity extends AppCompatActivity {
         attrNameList = getAttractionNameList(travelDB, TAXI_TIME);
 
         List<String> placesToVisit = new ArrayList<>(Arrays.asList(
-                BUDDHA_TOOTH,
-                KWAN_IM,
-                SIONG_LIM,
-                THIAN_HOCK,
                 KONG_MENG,
-                BURMESE,
+                KWAN_IM,
+                LEONG_SAN,
                 SAKYA_MUNI
         ));
 

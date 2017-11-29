@@ -80,6 +80,10 @@ public class TSPPath implements Comparable<TSPPath>{
         return transportMode;
     }
 
+    public String getAltTransportMode() {
+        return altTransportMode;
+    }
+
     public String getFrom() {
         return from;
     }

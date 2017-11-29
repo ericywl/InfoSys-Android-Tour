@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.akexorcist.googledirection.DirectionCallback;
 import com.akexorcist.googledirection.GoogleDirection;
@@ -19,6 +21,7 @@ import com.akexorcist.googledirection.model.Leg;
 import com.akexorcist.googledirection.model.Route;
 import com.akexorcist.googledirection.model.Step;
 import com.akexorcist.googledirection.util.DirectionConverter;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -41,11 +44,15 @@ import eric.myapplication.Misc.TSPPath;
 import eric.myapplication.Misc.TSPRoute;
 import eric.myapplication.R;
 
+import static eric.myapplication.Activity.PlanActivity.*;
 import static eric.myapplication.Database.TravelContract.TravelEntry.MBS;
 
 public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCallback, DirectionCallback {
     private GoogleMap mMap;
     private TSPRoute bestRoute;
+    private Button detailsBtn;
+    private double budget;
+
     // Origin set to Marina Bay Sands
     private List<LatLng> waypoints = new ArrayList<>();
     private ArrayList<String> selectedAttrNames;
@@ -61,20 +68,36 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_plan_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+        final SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapsFragment);
         mapFragment.getMapAsync(this);
 
-        // Get list of selected attractions from previous intent
+        // Get budget and list of selected attractions from previous intent
         Intent intent = getIntent();
+        String budgetStr = intent.getStringExtra(BUDGET_KEY);
+        budget = budgetStr.equals("") ? 1000 : Double.parseDouble(budgetStr);
         selectedAttrNames = (ArrayList<String>)
-                intent.getBundleExtra("LIST").getSerializable("SELECTED");
+                intent.getBundleExtra(LIST_KEY).getSerializable(SELECTED_KEY);
 
+        // Convert to DBNames as TravelDB uses a slightly different naming
         if (selectedAttrNames != null) {
             for (String attrName : selectedAttrNames) {
                 selectedAttrDBNames.add(attrName.replace("'", "").replace(" ", "_"));
             }
         }
+
+        detailsBtn = findViewById(R.id.details_btn);
+        detailsBtn.setVisibility(View.GONE);
+        detailsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mapFragment.getView().getVisibility() == View.VISIBLE) {
+                    mapFragment.getView().setVisibility(View.INVISIBLE);
+                } else {
+                    mapFragment.getView().setVisibility(View.VISIBLE);
+                }
+            }
+        });
     }
 
     @Override
@@ -84,12 +107,27 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
         mMap.addMarker(new MarkerOptions().position(originLatLng).title("Marina Bay Sands"))
                 .setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
 
+        if (selectedAttrNames.isEmpty()) {
+            CameraUpdate origCam = CameraUpdateFactory.newLatLngZoom(originLatLng, zoomLevel);
+            mMap.animateCamera(origCam);
+
+            Snackbar.make(findViewById(android.R.id.content), "Empty list.",
+                    Snackbar.LENGTH_INDEFINITE).show();
+            return;
+        }
+
+        TravelDBHelper travelDBHelper = new TravelDBHelper(this);
+        TSPFastSolver tspSolver = new TSPFastSolver(travelDBHelper.getReadableDatabase());
+        bestRoute = tspSolver.findBestRoute(MBS, selectedAttrDBNames, budget);
+
         List<Address> addressList;
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
 
         try {
             // Initializing list of waypoints
-            for (String attrName : selectedAttrNames) {
+            for (String attrDBName : bestRoute.getPlaces()) {
+                String attrName = attrDBName.replace("_", " ");
+                Log.i("eric1", attrName);
                 addressList = geocoder.getFromLocationName(attrName + " Singapore", 1);
                 double latitude = addressList.get(0).getLatitude();
                 double longitude = addressList.get(0).getLongitude();
@@ -103,24 +141,6 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
             Log.i("eric1", "Error occured: " + ex.toString() + ".");
         }
 
-        if (selectedAttrNames.isEmpty()) {
-            double latitude = originLatLng.latitude;
-            double longitude = originLatLng.longitude;
-            double constant = 0.005;
-
-            LatLng southwest = new LatLng(latitude - constant, longitude - constant);
-            LatLng northeast = new LatLng(latitude + constant, longitude + constant);
-            LatLngBounds bounds = new LatLngBounds(southwest, northeast);
-            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
-
-            Snackbar.make(findViewById(android.R.id.content), "Empty list.",
-                    Snackbar.LENGTH_LONG).show();
-            return;
-        }
-
-        TravelDBHelper travelDBHelper = new TravelDBHelper(this);
-        TSPFastSolver tspSolver = new TSPFastSolver(travelDBHelper.getReadableDatabase());
-        bestRoute = tspSolver.findBestRoute(MBS, selectedAttrDBNames, 20);
         getDirections(bestRoute.getPaths());
     }
 
@@ -129,23 +149,12 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
                 Snackbar.LENGTH_LONG).show();
         GoogleDirectionConfiguration.getInstance().setLogEnabled(true);
 
-        /*
-        // Set Marina Bay Sands as start
-        DirectionDestinationRequest destinationRequest = GoogleDirection.withServerKey(serverKey)
-                .from(originLatLng);
-        // Add waypoints
-        for (int i = 0; i < waypoints.size(); i++) {
-            destinationRequest.and(waypoints.get(i));
-        }
-        // Set Marina Bay Sands as end
-        destinationRequest.to(originLatLng)
-                .transportMode(TransportMode.DRIVING)
-                .execute(this);
-        */
+        // Google Direction does not allow same places in waypoints
+        // So, the starting place (MBS) is taken out
+        waypoints.remove(0);
 
         TSPPath path = paths.get(0);
         String mode = determineMode(path.getTransportMode());
-        Log.i("eric1", path.toString());
 
         GoogleDirection.withServerKey(serverKey)
                 .from(originLatLng)
@@ -154,16 +163,15 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
                 .transitMode(TransitMode.BUS)
                 .execute(this);
 
+        // Getting directions for subsequent waypoints
         for (int i = 0; i < waypoints.size() - 1; i++) {
-            path = paths.get(i + 1);
+            path = paths.get(i);
             mode = determineMode(path.getTransportMode());
-            Log.i("eric1", path.toString());
 
             GoogleDirection.withServerKey(serverKey)
                     .from(waypoints.get(i))
                     .to(waypoints.get(i + 1))
-                    .transportMode(TransportMode.TRANSIT)
-                    .transitMode(TransitMode.BUS)
+                    .transportMode(mode)
                     .execute(this);
         }
     }
@@ -175,9 +183,9 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
         if (direction.isOK()) {
             Log.i("eric1", "DirectionOK.");
             // Add markers to all selected attractions
-            for (int i = 0; i < waypoints.size(); i++) {
+            for (int i = 0; i < waypoints.size() - 1; i++) {
                 LatLng attractionLatLng = waypoints.get(i);
-                String attrName = selectedAttrNames.get(i);
+                String attrName = bestRoute.getPlaces().get(i + 1).replace("_", " ");
                 mMap.addMarker(new MarkerOptions().position(attractionLatLng).title(attrName));
             }
 
@@ -199,6 +207,7 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
             }
 
             setCameraWithCoordinationBounds(route);
+            detailsBtn.setVisibility(View.VISIBLE);
 
         } else {
             Snackbar.make(findViewById(android.R.id.content),
@@ -215,18 +224,18 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
                 Snackbar.LENGTH_SHORT).show();
     }
 
-    // Setting camera to show the whole route
-    private void setCameraWithCoordinationBounds(Route route) {
+    // Setting camera to show first route
+    private void setCameraWithCoordinationBounds(final Route route) {
         LatLng southwest = route.getBound().getSouthwestCoordination().getCoordination();
         LatLng northeast = route.getBound().getNortheastCoordination().getCoordination();
-        LatLngBounds bounds = new LatLngBounds(southwest, northeast);
+        final LatLngBounds bounds = new LatLngBounds(southwest, northeast);
         mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
     }
 
     private String determineMode(String transportMode) {
         String mode = TransportMode.DRIVING;
 
-        if (transportMode.equals("BUS")) {
+        if (transportMode.equals("PT")) {
             mode = TransportMode.TRANSIT;
         } else if (transportMode.equals("WALK")) {
             mode = TransportMode.WALKING;
