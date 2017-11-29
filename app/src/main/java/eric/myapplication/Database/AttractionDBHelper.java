@@ -36,6 +36,7 @@ public class AttractionDBHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + SELECTED_TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + AVAILABLE_TABLE_NAME);
         onCreate(sqLiteDatabase);
+        Log.i("eric1", "AttractionDB updated.");
     }
 
     private String createTable(String tableName) {
@@ -57,8 +58,7 @@ public class AttractionDBHelper extends SQLiteOpenHelper {
             values.put(COL_LARGE_IMAGE, (int) attrVal[3]);
             values.put(COL_INFO, (String) attrVal[4]);
 
-            long id = sqLiteDatabase.insert(tableName, null, values);
-            Log.i("eric1", id + "");
+            sqLiteDatabase.insert(tableName, null, values);
         }
     }
 }

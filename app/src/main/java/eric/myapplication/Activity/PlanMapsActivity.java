@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.akexorcist.googledirection.DirectionCallback;
 import com.akexorcist.googledirection.GoogleDirection;
 import com.akexorcist.googledirection.config.GoogleDirectionConfiguration;
+import com.akexorcist.googledirection.constant.TransitMode;
 import com.akexorcist.googledirection.constant.TransportMode;
 import com.akexorcist.googledirection.model.Direction;
 import com.akexorcist.googledirection.model.Leg;
@@ -26,6 +27,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CustomCap;
 import com.google.android.gms.maps.model.Dash;
 import com.google.android.gms.maps.model.Dot;
 import com.google.android.gms.maps.model.Gap;
@@ -79,51 +81,77 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
 
         try {
+            // Initializing list of waypoints
             for (Attraction attr : selectedAttractions) {
                 addressList = geocoder.getFromLocationName(attr.getName()
                         + " Singapore", 1);
                 double latitude = addressList.get(0).getLatitude();
                 double longitude = addressList.get(0).getLongitude();
 
-                // Initializing list of waypoints
                 LatLng attractionLatLng = new LatLng(latitude, longitude);
                 waypoints.add(attractionLatLng);
             }
 
         } catch (IOException ex) {
             ex.printStackTrace();
+            Log.i("eric1", "Error occured: " + ex.toString() + ".");
         }
 
         getDirections();
     }
 
-    // Add Marina Bay Sands and waypoints to the direction request
     private void getDirections() {
         Snackbar.make(findViewById(android.R.id.content), "Getting Directions...",
                 Snackbar.LENGTH_LONG).show();
         GoogleDirectionConfiguration.getInstance().setLogEnabled(true);
 
+        /*
+        // Set Marina Bay Sands as start
         DirectionDestinationRequest destinationRequest = GoogleDirection.withServerKey(serverKey)
                 .from(originLatLng);
-
-        for (int i = 0; i < waypoints.size(); i++)
+        // Add waypoints
+        for (int i = 0; i < waypoints.size(); i++) {
             destinationRequest.and(waypoints.get(i));
-
+        }
+        // Set Marina Bay Sands as end
         destinationRequest.to(originLatLng)
                 .transportMode(TransportMode.DRIVING)
+                .execute(this);
+        */
+
+        GoogleDirection.withServerKey(serverKey)
+                .from(originLatLng)
+                .to(waypoints.get(0))
+                .transportMode(TransportMode.TRANSIT)
+                .transitMode(TransitMode.BUS)
+                .execute(this);
+
+        for (int i = 1; i < waypoints.size(); i++) {
+            GoogleDirection.withServerKey(serverKey)
+                    .from(waypoints.get(i-1))
+                    .to(waypoints.get(i))
+                    .transportMode(TransportMode.TRANSIT)
+                    .transitMode(TransitMode.BUS)
+                    .execute(this);
+        }
+
+        GoogleDirection.withServerKey(serverKey)
+                .from(waypoints.get(waypoints.size() - 1))
+                .to(originLatLng)
+                .transportMode(TransportMode.TRANSIT)
+                .transitMode(TransitMode.BUS)
                 .execute(this);
     }
 
     @Override
     public void onDirectionSuccess(Direction direction, String rawBody) {
-        Log.i("eric1", "DirectionSuccess");
+        Log.i("eric1", "DirectionSuccess.");
         // Add azure marker to Marina Bay Sands first
         mMap.addMarker(new MarkerOptions().position(originLatLng).title("Marina Bay Sands"))
-                .setIcon(BitmapDescriptorFactory
-                        .defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                .setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
 
         if (direction.isOK()) {
-            Log.i("eric1", "DirectionOK");
+            Log.i("eric1", "DirectionOK.");
             // Add markers to all selected attractions
             for (int i = 0; i < waypoints.size(); i++) {
                 LatLng attractionLatLng = waypoints.get(i);
@@ -142,9 +170,9 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
                         .createTransitPolyline(this, stepList, 5, Color.RED, 3, Color.BLUE);
 
                 for (PolylineOptions polylineOptions : polylineOptionsList) {
-                    // List<PatternItem> pattern = Arrays.asList(
-                    //         new Dot(), new Gap(20), new Dash(30), new Gap(20));
-                    mMap.addPolyline(polylineOptions).setStartCap(new RoundCap());
+                    // mMap.addPolyline(polylineOptions).setStartCap(new CustomCap(
+                    //                 BitmapDescriptorFactory.fromResource(R.drawable.arrowhead), 21));
+                    mMap.addPolyline(polylineOptions).setStartCap(new SquareCap());
                 }
             }
 
@@ -153,21 +181,22 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
                 mMap.moveCamera(CameraUpdateFactory.zoomTo(zoomLevel));
                 Snackbar.make(findViewById(android.R.id.content), "No waypoints added.",
                         Snackbar.LENGTH_INDEFINITE).show();
-
-            } else {
-                setCameraWithCoordinationBounds(route);
+                return;
             }
+
+            setCameraWithCoordinationBounds(route);
+
         } else {
             Snackbar.make(findViewById(android.R.id.content),
                     "Unable to find route connecting all waypoints.", Snackbar.LENGTH_INDEFINITE)
                     .show();
-            Log.i("eric1", direction.getStatus());
+            Log.i("eric1", "DirectionError: " + direction.getStatus() + ".");
         }
     }
 
     @Override
     public void onDirectionFailure(Throwable t) {
-        Log.i("eric1", "DirectionFailure");
+        Log.i("eric1", "DirectionFailure.");
         Snackbar.make(findViewById(android.R.id.content), t.getMessage(),
                 Snackbar.LENGTH_SHORT).show();
     }

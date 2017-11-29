@@ -59,6 +59,7 @@ public class CustomListAdapter extends ArrayAdapter {
         View view = convertView;
         ViewHolder holder;
 
+        // Initializing view
         if (view == null) {
             LayoutInflater inflater = context.getLayoutInflater();
             view = inflater.inflate(R.layout.listview_row, parent, false);
@@ -73,6 +74,7 @@ public class CustomListAdapter extends ArrayAdapter {
 
         holder = (ViewHolder) view.getTag();
 
+        // Setting view
         Attraction attr = selectedList.get(position);
         holder.nameText.setText(attr.getName());
         holder.addrText.setText(attr.getAddress());

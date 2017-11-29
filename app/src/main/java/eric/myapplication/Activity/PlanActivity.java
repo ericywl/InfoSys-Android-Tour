@@ -213,6 +213,7 @@ public class PlanActivity extends AppCompatActivity {
         values.put(COL_LARGE_IMAGE, attr.getLargeImage());
 
         attractionDB.insert(tableName, null, values);
+        Log.i("eric1", attr.getName() + " added to " + tableName);
     }
 
     // Remove attraction with the respective name from the database table
@@ -220,6 +221,7 @@ public class PlanActivity extends AppCompatActivity {
         String selection = COL_NAME + "=?";
         String[] selectionArgs = {attrName};
         attractionDB.delete(tableName, selection, selectionArgs);
+        Log.i("eric1", attrName + " removed from " + tableName);
     }
 
     // Get the attraction with the corresponding name
@@ -244,11 +246,13 @@ public class PlanActivity extends AppCompatActivity {
 
             if (name.equals(attrName)) {
                 cursor.close();
+                Log.i("eric1", "Getting " + name);
                 return new Attraction(name, addr, image, largeImage, info);
             }
         }
 
         // Should not get here
+        Log.i("eric1", "Did not get any result with " + attrName + "!");
         return null;
     }
 
@@ -276,6 +280,7 @@ public class PlanActivity extends AppCompatActivity {
         }
 
         cursor.close();
+        Log.i("eric1", "Retrieved attraction list.");
         return output;
     }
 
@@ -288,12 +293,11 @@ public class PlanActivity extends AppCompatActivity {
         int nameIndex = cursor.getColumnIndex(COL_NAME);
         while (cursor.moveToNext()) {
             String name = cursor.getString(nameIndex);
-            Log.i("eric1", name);
             output.add(name);
         }
 
         cursor.close();
-        Log.i("eric1", "get name list");
+        Log.i("eric1", "Retrieved name list.");
         return output;
     }
 }
