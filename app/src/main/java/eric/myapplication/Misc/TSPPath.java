@@ -3,7 +3,7 @@ package eric.myapplication.Misc;
 
 import android.support.annotation.NonNull;
 
-public class Path implements Comparable<Path>{
+public class TSPPath implements Comparable<TSPPath>{
     private String from;
     private String to;
     private String altTransportMode;
@@ -15,8 +15,8 @@ public class Path implements Comparable<Path>{
     private double altCost;
     private double timeIncreasePerCostSaving;
 
-    public Path(String from, String to, double taxiTime, double taxiCost ,double altTime, double altCost,
-                String altTransportMode, double timeIncreasePerCostSaving) {
+    public TSPPath(String from, String to, double taxiTime, double taxiCost , double altTime, double altCost,
+                   String altTransportMode, double timeIncreasePerCostSaving) {
         this.from = from;
         this.to = to;
         this.altTransportMode = altTransportMode;
@@ -46,12 +46,12 @@ public class Path implements Comparable<Path>{
     }
 
     @Override
-    public int compareTo(@NonNull Path comparedPath) {
-        if (this.getTimeIncreasePerCostSaving() < comparedPath.getTimeIncreasePerCostSaving()) {
+    public int compareTo(@NonNull TSPPath comparedTSPPath) {
+        if (this.getTimeIncreasePerCostSaving() < comparedTSPPath.getTimeIncreasePerCostSaving()) {
             return -1;
         }
 
-        if (this.getTimeIncreasePerCostSaving() > comparedPath.getTimeIncreasePerCostSaving()) {
+        if (this.getTimeIncreasePerCostSaving() > comparedTSPPath.getTimeIncreasePerCostSaving()) {
             return 1;
         }
 
@@ -63,14 +63,14 @@ public class Path implements Comparable<Path>{
         if (obj.getClass() != this.getClass())
             return false;
 
-        Path comparedPath = (Path) obj;
-        if (!comparedPath.getTransportMode().equals("TAXI"))
+        TSPPath comparedTSPPath = (TSPPath) obj;
+        if (!comparedTSPPath.getTransportMode().equals("TAXI"))
             return false;
 
-        if (!comparedPath.getFrom().equals(this.getFrom()))
+        if (!comparedTSPPath.getFrom().equals(this.getFrom()))
             return false;
 
-        if (!comparedPath.getTo().equals(this.getTo()))
+        if (!comparedTSPPath.getTo().equals(this.getTo()))
             return false;
 
         return true;

@@ -13,13 +13,13 @@ import static eric.myapplication.Database.TravelDBHelper.*;
 public class TSPBruteForce {
     private String originName;
     private SQLiteDatabase travelDB;
-    private List<Route> allRoutes = new ArrayList<>();
+    private List<TSPRoute> allTSPRoutes = new ArrayList<>();
 
     public TSPBruteForce(SQLiteDatabase sqLiteDatabase) {
         this.travelDB = sqLiteDatabase;
     }
 
-    public Route findBestRoute(String originName, List<String> placesToVisit, int budget) {
+    public TSPRoute findBestRoute(String originName, List<String> placesToVisit, int budget) {
         List<String> tempRoute = new ArrayList<>();
         this.originName = originName;
         tempRoute.add(originName);
@@ -27,41 +27,41 @@ public class TSPBruteForce {
         travelDB.beginTransaction();
         findAllRoutes(tempRoute, placesToVisit);
 
-        Collections.sort(allRoutes);
-        Route tempBestRoute = allRoutes.get(0);
-        tempBestRoute.setPaths(initPaths(tempBestRoute.getPlaces()));
-        if (tempBestRoute.getCostWeight() <= budget) {
-            return tempBestRoute;
+        Collections.sort(allTSPRoutes);
+        TSPRoute tempBestTSPRoute = allTSPRoutes.get(0);
+        tempBestTSPRoute.setPaths(initPaths(tempBestTSPRoute.getPlaces()));
+        if (tempBestTSPRoute.getCostWeight() <= budget) {
+            return tempBestTSPRoute;
         }
 
         // Replace transport modes on paths that are the least efficient
-        List<Path> replacedPaths = tempBestRoute.getPaths();
-        List<Path> sortedPaths = new ArrayList<>(replacedPaths);
-        Collections.sort(sortedPaths);
+        List<TSPPath> replacedTSPPaths = tempBestTSPRoute.getPaths();
+        List<TSPPath> sortedTSPPaths = new ArrayList<>(replacedTSPPaths);
+        Collections.sort(sortedTSPPaths);
 
         int index = 0;
-        while (tempBestRoute.getCostWeight() > budget) {
-            Path sPath = sortedPaths.get(index);
-            if (sPath.getTimeIncreasePerCostSaving() > 0) {
-                for (Path oPath : replacedPaths)
-                    if (sPath.equals(oPath)) {
-                        oPath.setToAltTransportMode();
+        while (tempBestTSPRoute.getCostWeight() > budget) {
+            TSPPath sTSPPath = sortedTSPPaths.get(index);
+            if (sTSPPath.getTimeIncreasePerCostSaving() > 0) {
+                for (TSPPath oTSPPath : replacedTSPPaths)
+                    if (sTSPPath.equals(oTSPPath)) {
+                        oTSPPath.setToAltTransportMode();
 
-                        double timeIncrease = sPath.getAltTime() - sPath.getTaxiTime();
-                        double costDecrease = sPath.getTaxiCost() - sPath.getAltCost();
-                        tempBestRoute.addTimeWeight(timeIncrease);
-                        tempBestRoute.reduceCostWeight(costDecrease);
+                        double timeIncrease = sTSPPath.getAltTime() - sTSPPath.getTaxiTime();
+                        double costDecrease = sTSPPath.getTaxiCost() - sTSPPath.getAltCost();
+                        tempBestTSPRoute.addTimeWeight(timeIncrease);
+                        tempBestTSPRoute.reduceCostWeight(costDecrease);
                     }
             }
 
             index++;
         }
 
-        tempBestRoute.setPaths(replacedPaths);
+        tempBestTSPRoute.setPaths(replacedTSPPaths);
         travelDB.setTransactionSuccessful();
         travelDB.endTransaction();
 
-        return tempBestRoute;
+        return tempBestTSPRoute;
     }
 
     private void findAllRoutes(List<String> tempRoute, List<String> unvisitedAttractions) {
@@ -69,8 +69,8 @@ public class TSPBruteForce {
             tempRoute.add(originName);
             double totalTime = routeWeight(TAXI_TIME, tempRoute);
             double totalCost = routeWeight(TAXI_COST, tempRoute);
-            Route route = new Route(tempRoute, totalTime, totalCost);
-            allRoutes.add(route);
+            TSPRoute TSPRoute = new TSPRoute(tempRoute, totalTime, totalCost);
+            allTSPRoutes.add(TSPRoute);
             return;
         }
 
@@ -95,8 +95,8 @@ public class TSPBruteForce {
         return routeWeight;
     }
 
-    private List<Path> initPaths(List<String> places) {
-        List<Path> paths = new ArrayList<>();
+    private List<TSPPath> initPaths(List<String> places) {
+        List<TSPPath> TSPPaths = new ArrayList<>();
 
         for (int i = 0; i < places.size() - 1; i++) {
             String from = places.get(i);
@@ -125,12 +125,12 @@ public class TSPBruteForce {
                 timeIncreasePerCostSaving = walkTimeCost;
             }
 
-            // Add path to list of paths
-            Path path = new Path(from, to, taxiTime, taxiCost, altTime, altCost,
+            // Add TSPPath to list of TSPPaths
+            TSPPath TSPPath = new TSPPath(from, to, taxiTime, taxiCost, altTime, altCost,
                     altTransportMode, timeIncreasePerCostSaving);
-            paths.add(path);
+            TSPPaths.add(TSPPath);
         }
 
-        return paths;
+        return TSPPaths;
     }
 }

@@ -5,13 +5,13 @@ import android.support.annotation.NonNull;
 
 import java.util.List;
 
-public class Route implements Comparable<Route> {
+public class TSPRoute implements Comparable<TSPRoute> {
     private List<String> places;
-    private List<Path> paths;
+    private List<TSPPath> TSPPaths;
     private double timeWeight;
     private double costWeight;
 
-    public Route(List<String> places, double totalTime, double totalCost) {
+    public TSPRoute(List<String> places, double totalTime, double totalCost) {
         this.places = places;
         this.timeWeight = totalTime;
         this.costWeight = totalCost;
@@ -30,12 +30,12 @@ public class Route implements Comparable<Route> {
     }
 
     @Override
-    public int compareTo(@NonNull Route comparedRoute) {
-        if (this.getTimeWeight() < comparedRoute.getTimeWeight()) {
+    public int compareTo(@NonNull TSPRoute comparedTSPRoute) {
+        if (this.getTimeWeight() < comparedTSPRoute.getTimeWeight()) {
             return -1;
         }
 
-        if (this.getTimeWeight() > comparedRoute.getTimeWeight()) {
+        if (this.getTimeWeight() > comparedTSPRoute.getTimeWeight()) {
             return 1;
         }
 
@@ -46,8 +46,8 @@ public class Route implements Comparable<Route> {
     public String toString() {
         StringBuilder outputBld = new StringBuilder();
 
-        for (Path path : paths) {
-            outputBld.append(path.toString());
+        for (TSPPath TSPPath : TSPPaths) {
+            outputBld.append(TSPPath.toString());
             outputBld.append("\n");
         }
 
@@ -63,12 +63,12 @@ public class Route implements Comparable<Route> {
         return places;
     }
 
-    public List<Path> getPaths() {
-        return paths;
+    public List<TSPPath> getPaths() {
+        return TSPPaths;
     }
 
-    public void setPaths(List<Path> paths) {
-        this.paths = paths;
+    public void setPaths(List<TSPPath> TSPPaths) {
+        this.TSPPaths = TSPPaths;
     }
 
     public double getTimeWeight() {

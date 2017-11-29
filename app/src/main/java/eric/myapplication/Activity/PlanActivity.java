@@ -87,7 +87,12 @@ public class PlanActivity extends AppCompatActivity {
     public void doneOnClick(View view) {
         Intent intent = new Intent(view.getContext(), PlanMapsActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putSerializable(SELECTED_KEY, selectedAttractions);
+        ArrayList<String> selectedAttrNames = new ArrayList<>();
+        for (Attraction attr : selectedAttractions) {
+            selectedAttrNames.add(attr.getName());
+        }
+
+        bundle.putSerializable(SELECTED_KEY, selectedAttrNames);
         intent.putExtra(LIST_KEY, bundle);
         startActivity(intent);
     }
@@ -186,7 +191,6 @@ public class PlanActivity extends AppCompatActivity {
                 // Add to list of selected attractions
                 selectedAttractions.add(attr);
                 addToTable(attractionDB ,SELECTED_TABLE_NAME, attr);
-                Collections.sort(selectedAttractions);
 
                 // Remove from list of available attractions
                 availableAttractionNames.remove(position);

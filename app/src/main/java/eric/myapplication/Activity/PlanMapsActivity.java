@@ -8,8 +8,6 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
 
 import com.akexorcist.googledirection.DirectionCallback;
 import com.akexorcist.googledirection.GoogleDirection;
@@ -20,37 +18,30 @@ import com.akexorcist.googledirection.model.Direction;
 import com.akexorcist.googledirection.model.Leg;
 import com.akexorcist.googledirection.model.Route;
 import com.akexorcist.googledirection.model.Step;
-import com.akexorcist.googledirection.request.DirectionDestinationRequest;
 import com.akexorcist.googledirection.util.DirectionConverter;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CustomCap;
-import com.google.android.gms.maps.model.Dash;
-import com.google.android.gms.maps.model.Dot;
-import com.google.android.gms.maps.model.Gap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.PatternItem;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.maps.model.RoundCap;
 import com.google.android.gms.maps.model.SquareCap;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import eric.myapplication.Database.TravelDBHelper;
+import eric.myapplication.Misc.TSPFastSolver;
 import eric.myapplication.R;
-import eric.myapplication.Misc.Attraction;
 
 public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCallback, DirectionCallback {
     private GoogleMap mMap;
-    private ArrayList<Attraction> selectedAttractions;
+    private ArrayList<String> selectedAttrNames;
     // Origin set to Marina Bay Sands
     private LatLng originLatLng = new LatLng(1.2845442, 103.8595898);
     private List<LatLng> waypoints = new ArrayList<>();
@@ -70,7 +61,7 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
 
         // Get list of selected attractions from previous intent
         Intent intent = getIntent();
-        selectedAttractions = (ArrayList<Attraction>)
+        selectedAttrNames = (ArrayList<String>)
                 intent.getBundleExtra("LIST").getSerializable("SELECTED");
     }
 
@@ -82,9 +73,8 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
 
         try {
             // Initializing list of waypoints
-            for (Attraction attr : selectedAttractions) {
-                addressList = geocoder.getFromLocationName(attr.getName()
-                        + " Singapore", 1);
+            for (String attrName : selectedAttrNames) {
+                addressList = geocoder.getFromLocationName(attrName + " Singapore", 1);
                 double latitude = addressList.get(0).getLatitude();
                 double longitude = addressList.get(0).getLongitude();
 
@@ -97,6 +87,8 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
             Log.i("eric1", "Error occured: " + ex.toString() + ".");
         }
 
+        TravelDBHelper travelDBHelper = new TravelDBHelper(this);
+        TSPFastSolver tspSolver = new TSPFastSolver(travelDBHelper.getReadableDatabase());
         getDirections();
     }
 
@@ -155,8 +147,8 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
             // Add markers to all selected attractions
             for (int i = 0; i < waypoints.size(); i++) {
                 LatLng attractionLatLng = waypoints.get(i);
-                Attraction attr = selectedAttractions.get(i);
-                mMap.addMarker(new MarkerOptions().position(attractionLatLng).title(attr.getName()));
+                String attrName = selectedAttrNames.get(i);
+                mMap.addMarker(new MarkerOptions().position(attractionLatLng).title(attrName));
             }
 
             Route route = direction.getRouteList().get(0);
