@@ -8,6 +8,7 @@ public class TSPPath implements Comparable<TSPPath>{
     private String to;
     private String altTransportMode;
     private String transportMode = "TAXI";
+    private boolean switched = false;
 
     private double taxiTime;
     private double taxiCost;
@@ -29,6 +30,7 @@ public class TSPPath implements Comparable<TSPPath>{
     }
 
     public void setToAltTransportMode() {
+        switched = true;
         transportMode = altTransportMode;
     }
 
@@ -42,7 +44,7 @@ public class TSPPath implements Comparable<TSPPath>{
             cost = altCost;
         }
 
-        return from + " => " + to + ", Time: " + time + " Cost: " + cost + " Mode: " + transportMode;
+        return from + " => " + to + "\nTime: " + time + " Cost: " + cost;
     }
 
     @Override
@@ -63,14 +65,12 @@ public class TSPPath implements Comparable<TSPPath>{
         if (obj.getClass() != this.getClass())
             return false;
 
-        TSPPath comparedTSPPath = (TSPPath) obj;
-        if (!comparedTSPPath.getTransportMode().equals("TAXI"))
+        TSPPath comparedPath = (TSPPath) obj;
+
+        if (!comparedPath.getFrom().equals(this.getFrom()))
             return false;
 
-        if (!comparedTSPPath.getFrom().equals(this.getFrom()))
-            return false;
-
-        if (!comparedTSPPath.getTo().equals(this.getTo()))
+        if (!comparedPath.getTo().equals(this.getTo()))
             return false;
 
         return true;
@@ -110,5 +110,9 @@ public class TSPPath implements Comparable<TSPPath>{
 
     public double getTimeIncreasePerCostSaving() {
         return timeIncreasePerCostSaving;
+    }
+
+    public boolean isSwitched() {
+        return switched;
     }
 }

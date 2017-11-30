@@ -16,7 +16,7 @@ import static eric.myapplication.Database.TravelContract.TravelEntry.TAXI_TIME;
 import static eric.myapplication.Database.TravelContract.TravelEntry.WALK_TIME;
 import static eric.myapplication.Database.TravelDBHelper.getEntry;
 
-public class TSPFastSolver {
+public class TSPFastSolver extends TSPSolver {
     private String originName;
     private SQLiteDatabase travelDB;
     private TSPRoute bestApproxRoute;
@@ -33,7 +33,7 @@ public class TSPFastSolver {
         travelDB.beginTransaction();
         findOneRoute(tempRoute, placesToVisit);
 
-        bestApproxRoute.setPaths(initPaths(bestApproxRoute.getPlaces()));
+        bestApproxRoute.setPaths(initPaths(travelDB, bestApproxRoute.getPlaces()));
         if (bestApproxRoute.getCostWeight() <= budget) {
             return bestApproxRoute;
         }
@@ -42,17 +42,17 @@ public class TSPFastSolver {
         // Replace transport modes on paths that are the least efficient
         List<TSPPath> replacedPaths = bestApproxRoute.getPaths();
         List<TSPPath> sortedPaths = new ArrayList<>(replacedPaths);
-
         Collections.sort(sortedPaths);
+        Log.i("eric1", sortedPaths.toString());
 
         int index = 0;
         while (bestApproxRoute.getCostWeight() > budget) {
             TSPPath sPath = sortedPaths.get(index);
-            // Include cases where walk time might be lower than taxi time
+            // Include cases where alternative time might be lower than taxi time
             if (sPath.getTimeIncreasePerCostSaving() > -2) {
-                for (TSPPath oPath : replacedPaths)
-                    if (sPath.equals(oPath)) {
-                        oPath.setToAltTransportMode();
+                for (TSPPath rPath : replacedPaths)
+                    if (sPath.equals(rPath) && !rPath.isSwitched()) {
+                        rPath.setToAltTransportMode();
 
                         double timeIncrease = sPath.getAltTime() - sPath.getTaxiTime();
                         double costDecrease = sPath.getTaxiCost() - sPath.getAltCost();
@@ -114,44 +114,5 @@ public class TSPFastSolver {
         }
 
         return routeWeight;
-    }
-
-    private List<TSPPath> initPaths(List<String> places) {
-        List<TSPPath> TSPPaths = new ArrayList<>();
-
-        for (int i = 0; i < places.size() - 1; i++) {
-            String from = places.get(i);
-            String to = places.get(i + 1);
-
-            // Get time and cost for all transport modes
-            double taxiTime = getEntry(travelDB, TAXI_TIME, from, to);
-            double taxiCost = getEntry(travelDB, TAXI_COST, from, to);
-            double busTime = getEntry(travelDB, PT_TIME, from, to);
-            double busCost = getEntry(travelDB, PT_COST, from, to);
-            double walkTime = getEntry(travelDB, WALK_TIME, from, to);
-
-            double busTimeCost = (busTime - taxiTime) / (taxiCost - busCost);
-            double walkTimeCost = (walkTime - taxiTime) / taxiCost;
-
-            String altTransportMode = "PT";
-            double altTime = busTime;
-            double altCost = busCost;
-            double timeIncreasePerCostSaving = busTimeCost;
-
-            // Get most efficient alternative transport mode
-            if (busTimeCost < 0 || busTimeCost > walkTimeCost) {
-                altTransportMode = "WALK";
-                altTime = walkTime;
-                altCost = 0;
-                timeIncreasePerCostSaving = walkTimeCost;
-            }
-
-            // Add path to list of paths
-            TSPPath path = new TSPPath(from, to, taxiTime, taxiCost, altTime, altCost,
-                    altTransportMode, timeIncreasePerCostSaving);
-            TSPPaths.add(path);
-        }
-
-        return TSPPaths;
     }
 }

@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import eric.myapplication.Database.TravelDBHelper;
+import eric.myapplication.Misc.TSPBruteForce;
 import eric.myapplication.Misc.TSPRoute;
 import eric.myapplication.Misc.TSPFastSolver;
 import eric.myapplication.R;
@@ -33,14 +34,15 @@ public class TravelActivity extends AppCompatActivity {
         attrNameList = getAttractionNameList(travelDB, TAXI_TIME);
 
         List<String> placesToVisit = new ArrayList<>(Arrays.asList(
+                BURMESE,
                 KONG_MENG,
                 KWAN_IM,
-                LEONG_SAN,
-                SAKYA_MUNI
+                SAKYA_MUNI,
+                WAT_ANANDA
         ));
 
-        TSPFastSolver tspSolver = new TSPFastSolver(travelDB);
-        // TSPBruteForce tspSolver = new TSPBruteForce(travelDB);
+        // TSPFastSolver tspSolver = new TSPFastSolver(travelDB);
+        TSPBruteForce tspSolver = new TSPBruteForce(travelDB);
         long startTime = System.nanoTime();
         TSPRoute bestTSPRoute = tspSolver.findBestRoute(MBS, placesToVisit, 20);
         long endTime = System.nanoTime();

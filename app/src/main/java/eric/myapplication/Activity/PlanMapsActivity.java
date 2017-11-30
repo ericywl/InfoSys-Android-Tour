@@ -242,8 +242,10 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
 
             // Set text for total details
             TextView totalText = findViewById(R.id.total);
-            String totalTime = "Total time: " + (bestRoute.getTimeWeight() * 1000.0) / 1000.0 + " min";
-            String totalCost = "Total cost: " + (bestRoute.getCostWeight() * 1000.0) / 1000.0 + " SGD";
+            String totalTime = "Total time: " +
+                    Math.round(bestRoute.getTimeWeight() * 1000.0) / 1000.0 + " min";
+            String totalCost = "Total cost: " +
+                    Math.round(bestRoute.getCostWeight() * 1000.0) / 1000.0 + " SGD";
             String computeTime = "Time elapsed: " + elapsedTime;
             String totalStr = totalTime + "\n" + totalCost + "\n" + computeTime;
             totalText.setText(totalStr);
