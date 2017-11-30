@@ -17,19 +17,22 @@
             android:id="@+id/details_listview"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.8"/>
+            android:layout_weight="0.83"/>
 
         <TextView
             android:id="@+id/total"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.2"
+            android:layout_marginBottom="60sp"
+            android:layout_marginEnd="10sp"
+            android:layout_marginStart="10sp"
             android:layout_marginTop="10sp"
-            android:layout_marginBottom="100sp"
-            android:layout_marginStart="20sp"
+            android:layout_weight="0.17"
+            android:background="@drawable/details_text_bg"
+            android:padding="10sp"
+            android:text="Details Placeholder"
             android:textSize="18sp"
-            android:textStyle="bold"
-            android:text="Details Placeholder"/>
+            android:textStyle="bold"/>
 
     </LinearLayout>
 

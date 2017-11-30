@@ -174,18 +174,6 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
                 Snackbar.LENGTH_LONG).show();
         GoogleDirectionConfiguration.getInstance().setLogEnabled(true);
 
-        // Initialize ListView behind map
-        DetailsListAdapter adapter = new DetailsListAdapter(this, bestRoute.getPaths());
-        ListView detailsListView = findViewById(R.id.details_listview);
-        detailsListView.setAdapter(adapter);
-
-        // Set text for total details
-        TextView totalText = findViewById(R.id.total);
-        String totalStr = "Total time: " + bestRoute.getTimeWeight()
-                + "\nTotal cost: " + bestRoute.getCostWeight()
-                + "\nTime elapsed: " + elapsedTime;
-        totalText.setText(totalStr);
-
         // Google Direction does not allow same places in waypoints
         // So, the starting place (MBS) is taken out since its also the end
         waypoints.remove(0);
@@ -246,6 +234,19 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
 
             setCameraWithCoordinationBounds(route);
             detailsBtn.setVisibility(View.VISIBLE);
+
+            // Initialize ListView behind map
+            DetailsListAdapter adapter = new DetailsListAdapter(this, bestRoute.getPaths());
+            ListView detailsListView = findViewById(R.id.details_listview);
+            detailsListView.setAdapter(adapter);
+
+            // Set text for total details
+            TextView totalText = findViewById(R.id.total);
+            String totalTime = "Total time: " + (bestRoute.getTimeWeight() * 1000.0) / 1000.0 + " min";
+            String totalCost = "Total cost: " + (bestRoute.getCostWeight() * 1000.0) / 1000.0 + " SGD";
+            String computeTime = "Time elapsed: " + elapsedTime;
+            String totalStr = totalTime + "\n" + totalCost + "\n" + computeTime;
+            totalText.setText(totalStr);
 
         } else {
             Snackbar.make(findViewById(android.R.id.content),

@@ -9,8 +9,8 @@
         android:id="@+id/budget_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="60sp"
-        android:layout_marginStart="60sp"
+        android:layout_marginEnd="40sp"
+        android:layout_marginStart="40sp"
         android:hint="Default: 20"
         android:inputType="number"/>
 
@@ -18,15 +18,15 @@
         android:id="@+id/chkbox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="60sp"
-        android:layout_marginStart="60sp"
+        android:layout_marginEnd="40sp"
+        android:layout_marginStart="40sp"
         android:text="Enable Brute Force"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Warning: Brute forcing with more than 7 attractions will take VERY LONG"
-        android:layout_marginStart="70sp"
-        android:layout_marginEnd="70sp"/>
+        android:layout_marginStart="60sp"
+        android:layout_marginEnd="60sp"/>
 
 </LinearLayout>
