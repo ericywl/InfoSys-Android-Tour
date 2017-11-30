@@ -174,7 +174,10 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
                 .from(originLatLng)
                 .to(waypoints.get(0))
                 .transportMode(mode)
+                .transitMode(TransitMode.SUBWAY)
                 .transitMode(TransitMode.BUS)
+                .transitMode(TransitMode.TRAIN)
+                .transitMode(TransitMode.RAIL)
                 .execute(this);
 
         // Getting directions for subsequent waypoints
@@ -186,6 +189,10 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
                     .from(waypoints.get(i))
                     .to(waypoints.get(i + 1))
                     .transportMode(mode)
+                    .transitMode(TransitMode.SUBWAY)
+                    .transitMode(TransitMode.BUS)
+                    .transitMode(TransitMode.TRAIN)
+                    .transitMode(TransitMode.RAIL)
                     .execute(this);
         }
     }

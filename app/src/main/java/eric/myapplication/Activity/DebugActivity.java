@@ -13,18 +13,17 @@ import java.util.List;
 import eric.myapplication.Database.TravelDBHelper;
 import eric.myapplication.Misc.TSPBruteForce;
 import eric.myapplication.Misc.TSPRoute;
-import eric.myapplication.Misc.TSPFastSolver;
 import eric.myapplication.R;
 
 import static eric.myapplication.Database.TravelContract.TravelEntry.*;
 import static eric.myapplication.Database.TravelDBHelper.getAttractionNameList;
 
 // Class to test the solver, does not have anything to do with the project
-public class TravelActivity extends AppCompatActivity {
+public class DebugActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_travel);
+        setContentView(R.layout.activity_debug);
 
         TextView dbtext = findViewById(R.id.dbtext);
 
