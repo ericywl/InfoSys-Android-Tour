@@ -15,6 +15,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -48,6 +50,7 @@ public class PlanActivity extends AppCompatActivity {
     public static final String IMAGE_KEY = "IMAGE";
     public static final String NAME_KEY = "NAME";
     public static final String BUDGET_KEY = "BUDGET";
+    public static final String BRUTE_FORCE_KEY = "BF_BOOL";
 
     private SQLiteDatabase attractionDB;
     private CustomListAdapter adapter;
@@ -109,24 +112,30 @@ public class PlanActivity extends AppCompatActivity {
         AlertDialog.Builder adb = new AlertDialog.Builder(this);
         adb.setTitle("Budget");
         adb.setMessage("Key in your budget.");
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.setMargins(90, 0, 100, 0);
+        View doneView = View.inflate(this, R.layout.done_button, null);
+        CheckBox chkbox = doneView.findViewById(R.id.chkbox);
+        chkbox.setText("Brute Force");
+        chkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked) {
+                    intent.putExtra(BRUTE_FORCE_KEY, true);
+                } else {
+                    intent.putExtra(BRUTE_FORCE_KEY, false);
+                }
+            }
+        });
 
-        final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_NUMBER);
-        layout.addView(input, params);
+        final EditText budgetInput = doneView.findViewById(R.id.budget_input);
 
-        adb.setView(layout);
+        adb.setView(doneView);
         adb.setNegativeButton("Cancel", null);
         adb.setPositiveButton("Enter", new AlertDialog.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 bundle.putSerializable(SELECTED_KEY, selectedAttrNames);
                 intent.putExtra(LIST_KEY, bundle);
-                intent.putExtra(BUDGET_KEY, input.getText().toString());
+                intent.putExtra(BUDGET_KEY, budgetInput.getText().toString());
                 attractionDB.close();
                 startActivity(intent);
             }

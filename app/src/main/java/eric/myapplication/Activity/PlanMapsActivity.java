@@ -82,7 +82,8 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
         // Convert to DBNames as TravelDB uses a slightly different naming
         if (selectedAttrNames != null) {
             for (String attrName : selectedAttrNames) {
-                selectedAttrDBNames.add(attrName.replace("'", "").replace(" ", "_"));
+                selectedAttrDBNames.add(attrName.replace("'", "")
+                        .replace(" ", "_"));
             }
         }
 
