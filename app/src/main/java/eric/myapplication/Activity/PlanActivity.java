@@ -214,11 +214,6 @@ public class PlanActivity extends AppCompatActivity {
                         Toast.LENGTH_SHORT).show();
                 return true;
 
-            // Not yet implemented
-            case R.id.settings:
-                Toast.makeText(this, "Not implemented.", Toast.LENGTH_SHORT).show();
-                return true;
-
             // Back button
             case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
