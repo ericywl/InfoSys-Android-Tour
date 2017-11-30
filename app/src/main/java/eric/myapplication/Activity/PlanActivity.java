@@ -54,6 +54,7 @@ public class PlanActivity extends AppCompatActivity {
 
     private SQLiteDatabase attractionDB;
     private CustomListAdapter adapter;
+    private boolean bfBool;
 
     private ArrayList<String> availableAttractionNames;
     private ArrayList<Attraction> selectedAttractions;
@@ -102,6 +103,12 @@ public class PlanActivity extends AppCompatActivity {
 
     // Proceed to next activity
     public void doneOnClick(View view) {
+        if (selectedAttractions.isEmpty()) {
+            Toast.makeText(PlanActivity.this, "Please select some attractions.",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+
         final Intent intent = new Intent(view.getContext(), PlanMapsActivity.class);
         final Bundle bundle = new Bundle();
         final ArrayList<String> selectedAttrNames = new ArrayList<>();
@@ -109,25 +116,22 @@ public class PlanActivity extends AppCompatActivity {
             selectedAttrNames.add(attr.getName());
         }
 
+        // Dialog box before going to maps
         AlertDialog.Builder adb = new AlertDialog.Builder(this);
-        adb.setTitle("Budget");
+        adb.setTitle("Before we start...");
         adb.setMessage("Key in your budget.");
         View doneView = View.inflate(this, R.layout.done_button, null);
+        // Brute force checkbox
         CheckBox chkbox = doneView.findViewById(R.id.chkbox);
-        chkbox.setText("Brute Force");
         chkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked) {
-                    intent.putExtra(BRUTE_FORCE_KEY, true);
-                } else {
-                    intent.putExtra(BRUTE_FORCE_KEY, false);
-                }
+                bfBool = isChecked;
             }
         });
 
+        // Budget input, default 20
         final EditText budgetInput = doneView.findViewById(R.id.budget_input);
-
         adb.setView(doneView);
         adb.setNegativeButton("Cancel", null);
         adb.setPositiveButton("Enter", new AlertDialog.OnClickListener() {
@@ -136,6 +140,7 @@ public class PlanActivity extends AppCompatActivity {
                 bundle.putSerializable(SELECTED_KEY, selectedAttrNames);
                 intent.putExtra(LIST_KEY, bundle);
                 intent.putExtra(BUDGET_KEY, budgetInput.getText().toString());
+                intent.putExtra(BRUTE_FORCE_KEY, bfBool);
                 attractionDB.close();
                 startActivity(intent);
             }
@@ -157,6 +162,7 @@ public class PlanActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         switch (id) {
+            // Add all attractions to selected list
             case R.id.add_all:
                 attractionDB.beginTransaction();
 
@@ -211,6 +217,7 @@ public class PlanActivity extends AppCompatActivity {
                 Toast.makeText(this, "Not implemented.", Toast.LENGTH_SHORT).show();
                 return true;
 
+            // Back button
             case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
                 return true;

@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Locale;
 
 import eric.myapplication.Database.TravelDBHelper;
+import eric.myapplication.Misc.TSPBruteForce;
 import eric.myapplication.Misc.TSPFastSolver;
 import eric.myapplication.Misc.TSPPath;
 import eric.myapplication.Misc.TSPRoute;
@@ -52,6 +53,7 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
     private TSPRoute bestRoute;
     private Button detailsBtn;
     private double budget;
+    private boolean bfBool;
 
     // Origin set to Marina Bay Sands
     private List<LatLng> waypoints = new ArrayList<>();
@@ -75,7 +77,9 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
         // Get budget and list of selected attractions from previous intent
         Intent intent = getIntent();
         String budgetStr = intent.getStringExtra(BUDGET_KEY);
-        budget = budgetStr.equals("") ? 1000 : Double.parseDouble(budgetStr);
+        budget = budgetStr.equals("") ? 20 : Double.parseDouble(budgetStr);
+        bfBool = intent.getBooleanExtra(BRUTE_FORCE_KEY, false);
+        Log.i("eric1", bfBool + "");
         selectedAttrNames = (ArrayList<String>)
                 intent.getBundleExtra(LIST_KEY).getSerializable(SELECTED_KEY);
 
@@ -118,8 +122,14 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
         }
 
         TravelDBHelper travelDBHelper = new TravelDBHelper(this);
-        TSPFastSolver tspSolver = new TSPFastSolver(travelDBHelper.getReadableDatabase());
-        bestRoute = tspSolver.findBestRoute(MBS, selectedAttrDBNames, budget);
+
+        if (bfBool) {
+            TSPBruteForce tspBruteForce = new TSPBruteForce(travelDBHelper.getReadableDatabase());
+            bestRoute = tspBruteForce.findBestRoute(MBS, selectedAttrDBNames, budget);
+        } else {
+            TSPFastSolver tspFastSolver = new TSPFastSolver(travelDBHelper.getReadableDatabase());
+            bestRoute = tspFastSolver.findBestRoute(MBS, selectedAttrDBNames, budget);
+        }
 
         List<Address> addressList;
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
