@@ -30,7 +30,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.SquareCap;
@@ -56,8 +55,8 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
     private TSPRoute bestRoute;
     private Button detailsBtn;
     private double budget;
-    private boolean bfBool;
     private double elapsedTime;
+    private boolean bfBool;
 
     // Origin set to Marina Bay Sands
     private List<LatLng> waypoints = new ArrayList<>();
@@ -120,16 +119,9 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
         mMap.addMarker(new MarkerOptions().position(originLatLng).title("Marina Bay Sands"))
                 .setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
 
-        if (selectedAttrNames.isEmpty()) {
-            CameraUpdate origCam = CameraUpdateFactory.newLatLngZoom(originLatLng, zoomLevel);
-            mMap.animateCamera(origCam);
-
-            Snackbar.make(findViewById(android.R.id.content), "Empty list.",
-                    Snackbar.LENGTH_INDEFINITE).show();
-            return;
-        }
-
         TravelDBHelper travelDBHelper = new TravelDBHelper(this);
+        List<Address> addressList;
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
 
         // Solve the Travelling Salesman Problem
         long startTime = System.nanoTime();
@@ -144,9 +136,6 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
 
         long endTime = System.nanoTime();
         elapsedTime = (endTime - startTime) / 1000000000.0;
-
-        List<Address> addressList;
-        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
 
         try {
             // Initializing list of waypoints
@@ -232,7 +221,6 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
                 }
             }
 
-            setCameraWithCoordinationBounds(route);
             detailsBtn.setVisibility(View.VISIBLE);
 
             // Initialize ListView behind map
@@ -246,7 +234,8 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
                     Math.round(bestRoute.getTimeWeight() * 1000.0) / 1000.0 + " min";
             String totalCost = "Total cost: " +
                     Math.round(bestRoute.getCostWeight() * 1000.0) / 1000.0 + " SGD";
-            String computeTime = "Time elapsed: " + elapsedTime;
+            String computeTime = "Computation time: " +
+                    Math.round(elapsedTime * 1000.0) / 1000.0 + " s";
             String totalStr = totalTime + "\n" + totalCost + "\n" + computeTime;
             totalText.setText(totalStr);
 
@@ -265,14 +254,13 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
                 Snackbar.LENGTH_SHORT).show();
     }
 
-    // Setting camera to show first route
-    private void setCameraWithCoordinationBounds(final Route route) {
-        LatLng southwest = route.getBound().getSouthwestCoordination().getCoordination();
-        LatLng northeast = route.getBound().getNortheastCoordination().getCoordination();
-        final LatLngBounds bounds = new LatLngBounds(southwest, northeast);
-        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+    // Animating camera to show MBS
+    private void setCamera() {
+        CameraUpdate origCam = CameraUpdateFactory.newLatLngZoom(originLatLng, zoomLevel);
+        mMap.animateCamera(origCam);
     }
 
+    // Determine mode of transport
     private String determineMode(String transportMode) {
         String mode = TransportMode.DRIVING;
 

@@ -32,6 +32,8 @@ public class TSPBruteForce extends TSPSolver {
         List<TSPRoute> bestThreeRoutes = new ArrayList<>();
 
         for (int i = 0; i < 3; i++) {
+            if (i >= allTSPRoutes.size()) break;
+
             TSPRoute route = allTSPRoutes.get(i);
             route.setPaths(initPaths(travelDB, route.getPlaces()));
             if (route.getCostWeight() <= budget) {

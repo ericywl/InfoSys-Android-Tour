@@ -19,9 +19,8 @@ import eric.myapplication.R;
 import static eric.myapplication.Database.TravelContract.TravelEntry.*;
 import static eric.myapplication.Database.TravelDBHelper.getAttractionNameList;
 
+// Class to test the solver, does not have anything to do with the project
 public class TravelActivity extends AppCompatActivity {
-    private List<String> attrNameList;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,7 +30,7 @@ public class TravelActivity extends AppCompatActivity {
 
         TravelDBHelper travelDBHelper = new TravelDBHelper(this);
         SQLiteDatabase travelDB = travelDBHelper.getReadableDatabase();
-        attrNameList = getAttractionNameList(travelDB, TAXI_TIME);
+        List<String> attrNameList = getAttractionNameList(travelDB, TAXI_TIME);
 
         List<String> placesToVisit = new ArrayList<>(Arrays.asList(
                 BURMESE,
