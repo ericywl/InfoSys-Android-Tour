@@ -22,18 +22,15 @@ public class TSPBruteForce extends TSPSolver {
 
     public TSPRoute findBestRoute(String originName, List<String> placesToVisit, double budget) {
         List<String> tempRoute = new ArrayList<>();
+        List<TSPRoute> replacedRoutes = new ArrayList<>();
+
         this.originName = originName;
         tempRoute.add(originName);
 
         travelDB.beginTransaction();
         findAllRoutes(tempRoute, placesToVisit);
 
-        Collections.sort(allTSPRoutes);
-        List<TSPRoute> bestThreeRoutes = new ArrayList<>();
-
-        for (int i = 0; i < 3; i++) {
-            if (i >= allTSPRoutes.size()) break;
-
+        for (int i = 0; i < allTSPRoutes.size(); i++) {
             TSPRoute route = allTSPRoutes.get(i);
             route.setPaths(initPaths(travelDB, route.getPlaces()));
             if (route.getCostWeight() <= budget) {
@@ -66,14 +63,14 @@ public class TSPBruteForce extends TSPSolver {
             }
 
             route.setPaths(replacedPaths);
-            bestThreeRoutes.add(route);
+            replacedRoutes.add(route);
         }
 
         travelDB.setTransactionSuccessful();
         travelDB.endTransaction();
 
-        Collections.sort(bestThreeRoutes);
-        return bestThreeRoutes.get(0);
+        Collections.sort(replacedRoutes);
+        return replacedRoutes.get(0);
     }
 
     private void findAllRoutes(List<String> tempRoute, List<String> unvisitedAttractions) {

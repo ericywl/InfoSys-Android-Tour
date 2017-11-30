@@ -221,6 +221,7 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
                 }
             }
 
+            setCamera(originLatLng);
             detailsBtn.setVisibility(View.VISIBLE);
 
             // Initialize ListView behind map
@@ -255,8 +256,8 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
     }
 
     // Animating camera to show MBS
-    private void setCamera() {
-        CameraUpdate origCam = CameraUpdateFactory.newLatLngZoom(originLatLng, zoomLevel);
+    private void setCamera(LatLng center) {
+        CameraUpdate origCam = CameraUpdateFactory.newLatLngZoom(center, zoomLevel);
         mMap.animateCamera(origCam);
     }
 
