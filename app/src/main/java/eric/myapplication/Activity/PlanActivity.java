@@ -4,22 +4,19 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
-import eric.myapplication.Adapter.CustomListAdapter;
+import eric.myapplication.Adapter.PlanListAdapter;
 import eric.myapplication.Database.AttractionDBHelper;
 import eric.myapplication.Misc.Attraction;
 import eric.myapplication.R;
@@ -53,7 +50,7 @@ public class PlanActivity extends AppCompatActivity {
     public static final String BRUTE_FORCE_KEY = "BF_BOOL";
 
     private SQLiteDatabase attractionDB;
-    private CustomListAdapter adapter;
+    private PlanListAdapter adapter;
     private boolean bfBool;
 
     private ArrayList<String> availableAttractionNames;
@@ -65,14 +62,16 @@ public class PlanActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_plan);
 
+        // Initializing selected and available list
         AttractionDBHelper attractionDBHelper = AttractionDBHelper.getInstance(this);
         attractionDB = attractionDBHelper.getWritableDatabase();
         selectedAttractions = getAttractionList(attractionDB, SELECTED_TABLE_NAME);
         availableAttractionNames = getAttractionNameList(attractionDB,
                 AVAILABLE_TABLE_NAME);
 
-        adapter = new CustomListAdapter(this, selectedAttractions, availableAttractionNames);
-        final ListView attrListView = findViewById(R.id.list_view);
+        // Initialzing CustomListView
+        adapter = new PlanListAdapter(this, selectedAttractions, availableAttractionNames);
+        final ListView attrListView = findViewById(R.id.plan_listview);
         TextView emptyView = findViewById(R.id.empty_list);
 
         attrListView.setAdapter(adapter);
@@ -88,6 +87,8 @@ public class PlanActivity extends AppCompatActivity {
                 intent.putExtra(NAME_KEY, attr.getName());
                 intent.putExtra(INFO_KEY, attr.getDescription());
                 intent.putExtra(IMAGE_KEY, attr.getLargeImage());
+                Snackbar.make(findViewById(android.R.id.content), "Calculating route...",
+                        Snackbar.LENGTH_LONG).show();
                 startActivity(intent);
             }
         });
@@ -109,6 +110,7 @@ public class PlanActivity extends AppCompatActivity {
             return;
         }
 
+        // Add names to selected name list
         final Intent intent = new Intent(view.getContext(), PlanMapsActivity.class);
         final Bundle bundle = new Bundle();
         final ArrayList<String> selectedAttrNames = new ArrayList<>();

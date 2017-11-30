@@ -10,6 +10,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import com.akexorcist.googledirection.DirectionCallback;
 import com.akexorcist.googledirection.GoogleDirection;
@@ -38,6 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import eric.myapplication.Adapter.DetailsListAdapter;
 import eric.myapplication.Database.TravelDBHelper;
 import eric.myapplication.Misc.TSPBruteForce;
 import eric.myapplication.Misc.TSPFastSolver;
@@ -54,6 +57,7 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
     private Button detailsBtn;
     private double budget;
     private boolean bfBool;
+    private double elapsedTime;
 
     // Origin set to Marina Bay Sands
     private List<LatLng> waypoints = new ArrayList<>();
@@ -91,15 +95,19 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
             }
         }
 
+        // Show or hide the route details
         detailsBtn = findViewById(R.id.details_btn);
-        detailsBtn.setVisibility(View.GONE);
+        detailsBtn.setText(R.string.show_details);
         detailsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (mapFragment.getView().getVisibility() == View.VISIBLE) {
                     mapFragment.getView().setVisibility(View.INVISIBLE);
+                    detailsBtn.setText(R.string.hide_details);
+
                 } else {
                     mapFragment.getView().setVisibility(View.VISIBLE);
+                    detailsBtn.setText(R.string.show_details);
                 }
             }
         });
@@ -123,6 +131,9 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
 
         TravelDBHelper travelDBHelper = new TravelDBHelper(this);
 
+        // Solve the Travelling Salesman Problem
+        long startTime = System.nanoTime();
+
         if (bfBool) {
             TSPBruteForce tspBruteForce = new TSPBruteForce(travelDBHelper.getReadableDatabase());
             bestRoute = tspBruteForce.findBestRoute(MBS, selectedAttrDBNames, budget);
@@ -130,6 +141,9 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
             TSPFastSolver tspFastSolver = new TSPFastSolver(travelDBHelper.getReadableDatabase());
             bestRoute = tspFastSolver.findBestRoute(MBS, selectedAttrDBNames, budget);
         }
+
+        long endTime = System.nanoTime();
+        elapsedTime = (endTime - startTime) / 1000000000.0;
 
         List<Address> addressList;
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
@@ -160,8 +174,20 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
                 Snackbar.LENGTH_LONG).show();
         GoogleDirectionConfiguration.getInstance().setLogEnabled(true);
 
+        // Initialize ListView behind map
+        DetailsListAdapter adapter = new DetailsListAdapter(this, bestRoute.getPaths());
+        ListView detailsListView = findViewById(R.id.details_listview);
+        detailsListView.setAdapter(adapter);
+
+        // Set text for total details
+        TextView totalText = findViewById(R.id.total);
+        String totalStr = "Total time: " + bestRoute.getTimeWeight()
+                + "\nTotal cost: " + bestRoute.getCostWeight()
+                + "\nTime elapsed: " + elapsedTime;
+        totalText.setText(totalStr);
+
         // Google Direction does not allow same places in waypoints
-        // So, the starting place (MBS) is taken out
+        // So, the starting place (MBS) is taken out since its also the end
         waypoints.remove(0);
 
         TSPPath path = paths.get(0);
@@ -208,7 +234,8 @@ public class PlanMapsActivity extends AppCompatActivity implements OnMapReadyCal
                 Leg leg = route.getLegList().get(j);
                 List<Step> stepList = leg.getStepList();
                 ArrayList<PolylineOptions> polylineOptionsList = DirectionConverter
-                        .createTransitPolyline(this, stepList, 5, Color.RED, 3, Color.BLUE);
+                        .createTransitPolyline(this, stepList,
+                                5, Color.RED, 3, Color.BLUE);
 
                 for (PolylineOptions polylineOptions : polylineOptionsList) {
                     // mMap.addPolyline(polylineOptions).setStartCap(new CustomCap(

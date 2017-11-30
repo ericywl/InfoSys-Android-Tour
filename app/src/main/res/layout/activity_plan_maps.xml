@@ -1,19 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".Activity.PlanMapsActivity">
 
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ListView
+            android:id="@+id/details_listview"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.8"/>
+
+        <TextView
+            android:id="@+id/total"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.2"
+            android:layout_marginTop="10sp"
+            android:layout_marginBottom="100sp"
+            android:layout_marginStart="20sp"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:text="Details Placeholder"/>
+
+    </LinearLayout>
+
+    <fragment
+        xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/mapsFragment"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".Activity.PlanMapsActivity" />
+        tools:context=".Activity.PlanMapsActivity"/>
 
     <Button
         android:id="@+id/details_btn"
@@ -22,7 +49,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="10sp"
-        android:text="@string/show_details" />
+        android:text="@string/show_details"/>
 
 </RelativeLayout>
 

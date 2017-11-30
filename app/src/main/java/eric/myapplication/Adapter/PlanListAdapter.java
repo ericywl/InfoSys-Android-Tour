@@ -26,17 +26,17 @@ import eric.myapplication.Misc.Attraction;
 import static eric.myapplication.Database.AttractionContract.AttractionEntry.*;
 import static eric.myapplication.Database.AttractionDBHelper.*;
 
-public class CustomListAdapter extends ArrayAdapter {
+public class PlanListAdapter extends ArrayAdapter {
     private Activity context;
     private ArrayList<Attraction> selectedList;
     private ArrayList<String> availableList;
     private SQLiteDatabase attractionDB;
 
     @SuppressWarnings("unchecked")
-    public CustomListAdapter(Activity context, ArrayList<Attraction> selectedListParam,
-                             ArrayList<String> availableListParam) {
+    public PlanListAdapter(Activity context, ArrayList<Attraction> selectedListParam,
+                           ArrayList<String> availableListParam) {
 
-        super(context, R.layout.listview_row, selectedListParam);
+        super(context, R.layout.planlistview_row, selectedListParam);
 
         this.context = context;
         this.selectedList = selectedListParam;
@@ -58,7 +58,7 @@ public class CustomListAdapter extends ArrayAdapter {
         // Initializing view
         if (view == null) {
             LayoutInflater inflater = context.getLayoutInflater();
-            view = inflater.inflate(R.layout.listview_row, parent, false);
+            view = inflater.inflate(R.layout.planlistview_row, parent, false);
 
             holder = new ViewHolder();
             holder.nameText = view.findViewById(R.id.name);
